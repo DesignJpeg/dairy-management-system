@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dairy Desk</title>
+<style>
+:root{--ac:#1f7a48;--tx:#1d1d1f;--tx2:#6e6e73;--bg:#e8eaed;--line:rgba(0,0,0,.09)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+h2,h3{letter-spacing:-.02em;margin:0 0 8px;line-height:1.15}
+h2{font-size:30px}h3{font-size:20px;display:flex;align-items:center;gap:8px}
+.wrap{max-width:760px;margin:0 auto;padding:14px 14px 120px}
+.i{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.glass{background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,.8);box-shadow:0 8px 28px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.95)}
+.tr{display:flex;align-items:center;gap:10px;margin:6px 2px 10px}.tr h2{flex:1;margin:0}
+button,input,select{font:inherit;color:var(--tx)}
+input,select{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#f5f6f7}
+input[type=checkbox]{width:20px;min-height:0;height:20px}
+input:focus,select:focus{outline:2px solid var(--ac);outline-offset:1px}
+button{cursor:pointer;min-height:44px;padding:0 16px;border:0;border-radius:999px;background:rgba(0,0,0,.06);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:transform .1s ease-out,background .15s}
+button:active{transform:scale(.96)}
+button.p{background:var(--ac);color:#fff}
+button.d{color:#c4261d}
+button.full{width:100%}
+button.sm{min-height:34px;padding:0 12px;font-size:13px}
+.card{background:#fff;border-radius:22px;padding:16px;margin:12px 0;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1 1 140px}
+label{display:block;font-size:13px;font-weight:500;letter-spacing:.01em;color:var(--tx2);margin:10px 0 4px}
+.sw{position:relative}.sw .i{position:absolute;left:13px;top:12px;color:var(--tx2)}.sw input{padding-left:42px}
+.day{border-bottom:1px solid var(--line);padding:10px 0}.day:last-child{border:0}
+.dh{display:flex;align-items:center;gap:8px}
+.dh .dt{font-weight:700;flex:1;letter-spacing:-.01em}.dh small{font-weight:400;color:var(--tx2)}
+.slot{display:flex;gap:6px;align-items:center;margin-top:8px}
+.sl{width:84px;font-size:12px;line-height:1.25}.sl b{display:flex;align-items:center;gap:4px;font-size:13px}.sl .i{width:15px;height:15px}
+.slot button.s{width:46px;padding:0;flex:none}
+.slot input{flex:1;min-width:0;text-align:center;font-size:18px;padding:8px 4px}
+.ne{color:#8e8e93}.un{color:#b25e00}.ok{color:var(--ac)}
+.sum div{display:flex;justify-content:space-between;padding:4px 0}
+.sum .t{font-weight:700;font-size:18px;border-top:1px solid var(--line);margin-top:4px;padding-top:8px}
+.hide{display:none}
+.muted{color:var(--tx2);font-size:14px}
+table{width:100%;border-collapse:collapse}td,th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
+.cus{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line)}.cus>div{flex:1 1 160px}
+#qrBox{text-align:center}#qrBox svg{width:220px;height:220px;max-width:100%}
+#nav{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);width:min(560px,calc(100% - 20px));border-radius:34px;padding:6px;display:flex;gap:2px;z-index:10}
+#nav button{flex:1;flex-direction:column;gap:2px;background:transparent;border-radius:28px;padding:7px 2px;font-size:11px;color:var(--tx2);min-height:56px}
+#nav button.on{background:rgba(255,255,255,.95);color:var(--ac);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+#saveBar{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:9;border-radius:999px;padding:6px 6px 6px 18px;display:none;align-items:center;gap:12px;white-space:nowrap;font-weight:600}
+#saveBar button.p{background:rgba(31,122,72,.92)}
+#toast{position:fixed;top:14px;left:50%;transform:translate(-50%,-10px) scale(.96);filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s,filter .25s;padding:12px 18px;border-radius:999px;z-index:20;max-width:92%;font-weight:600;font-size:15px}
+#toast.show{opacity:1;transform:translate(-50%,0) scale(1);filter:none}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.glass{background:rgba(255,255,255,.94)}}
+@media(prefers-reduced-transparency:reduce){.glass{background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none}}
+@media(prefers-contrast:more){.glass,.card{border:1px solid #444}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}#toast{filter:none}}
+button:disabled,input:disabled{opacity:.45;pointer-events:none}
+.card.lockb{display:flex;align-items:center;gap:10px;background:#eef6f0}.lockb .i{color:var(--ac)}
+.sl span{display:block;font-size:11px;line-height:1.3}.sl .ty{font-weight:600;color:var(--tx);font-size:12px}
+.seg{display:flex;gap:6px;overflow-x:auto;padding:2px 0 4px;margin-top:4px}.seg button{white-space:nowrap;min-height:38px;font-size:14px;flex:none}.seg button.on{background:#222;color:#fff}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tile{background:#f5f6f7;border-radius:14px;padding:10px 12px}.tile b{display:block;font-size:20px;letter-spacing:-.01em}.tile span{font-size:12px;color:var(--tx2)}
+.rl{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}.rl:last-child{border:0}.rl>div:last-child{text-align:right}
+.tw{overflow-x:auto}.tw table{min-width:440px;font-size:14px}.tw th{font-size:12px;color:var(--tx2);font-weight:600}.tw .i{width:16px;height:16px;vertical-align:-3px}
+.bc{display:flex;gap:3px;align-items:flex-end;margin-top:8px}.bcol{flex:1;min-width:0;text-align:center}.bcol>span{display:block;font-size:9px;color:var(--tx2);height:12px;overflow:hidden}
+.bw{display:flex;align-items:flex-end;gap:2px;height:120px}.bar{flex:1;min-height:0}.bar.st{display:flex;flex-direction:column-reverse}.bar.st i{display:block}
+.lg{display:flex;gap:12px;font-size:12px;color:var(--tx2);margin-top:6px}.lg span{display:flex;align-items:center;gap:5px}.lg i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.aiBox{line-height:1.5}
+.chip{font-size:12px;font-weight:600;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.06);white-space:nowrap}.chip.ok{color:var(--ac)}.chip.busy{color:#b25e00}.chip.off{background:#c4261d;color:#fff}
+.tst{width:46px;flex:none;text-align:center;font-weight:700}.tst .i{width:20px;height:20px;vertical-align:middle}
+.pvl{border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:8px}
+button.rec{background:#c4261d;color:#fff}
+#nav button{font-size:10px;padding:7px 0}
+</style></head><body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol><symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol><symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol><symbol id="i-wallet" viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></symbol><symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol><symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol><symbol id="i-share" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></symbol><symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></symbol><symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></symbol><symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></symbol><symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M14 21h.01M17 21h4v-4"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol><symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></symbol><symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.85 2.85 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></symbol><symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></symbol><symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol><symbol id="i-userplus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M8 17v-5M13 17V8M18 17v-8"/></symbol>
+<symbol id="i-chevl" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol><symbol id="i-chevr" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 16l.7 1.8L21.5 18.5l-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-11 11M22 2l-7 20-4-9-9-4z"/></symbol></defs></svg>
+
+<div id="login" class="wrap hide"><div class="card">
+<h2>Dairy Desk</h2><p class="muted">Log in to continue</p>
+<label>Email</label><input id="em" type="email">
+<label>Password</label><input id="pw" type="password">
+<p><button class="p full" onclick="login()">Log in</button></p></div></div>
+
+<div id="app" class="hide"><div class="wrap">
+<div class="tr"><h2 id="bn">Dairy Desk</h2><span id="svst" class="chip ok">Saved ✓</span><button id="lg" onclick="toggleLang()" style="min-width:76px">বাংলা</button><button aria-label="Log out" onclick="db.auth.signOut().then(()=>location.reload())"><svg class="i"><use href="#i-logout"/></svg></button></div>
+
+<section id="t-today">
+<div class="card"><div class="row" style="flex-wrap:nowrap"><button aria-label="Previous day" onclick="tdSetDate(-1)" style="flex:none;padding:0 12px"><svg class="i"><use href="#i-chevl"/></svg></button><input id="tdd" type="date" onchange="tdSetDate(0)"><button aria-label="Next day" onclick="tdSetDate(1)" style="flex:none;padding:0 12px"><svg class="i"><use href="#i-chevr"/></svg></button></div>
+<p><button class="p full" onclick="tdAll()"><svg class="i"><use href="#i-check"/></svg>All delivered as usual</button></p>
+<p class="muted" id="tdSum"></p>
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--tx);margin:0"><input type="checkbox" id="tdOnly" onchange="todayRender()"> Show only customers not done</label></div>
+<div class="card"><h3><svg class="i"><use href="#i-mic"/></svg>Quick entry</h3>
+<div class="row" style="flex-wrap:nowrap"><input id="qt" placeholder="Ekta 1 litre, Ravi half, Sunil no milk"><button id="micb" aria-label="Speak" onclick="micGo()" style="flex:none;padding:0 14px"><svg class="i"><use href="#i-mic"/></svg></button></div>
+<p><button class="full" onclick="qPreview()">Preview</button></p><div id="qpv"></div>
+<p class="muted">Names are matched on your phone and are never sent anywhere. Voice typing uses your browser's speech service.</p></div>
+<div id="tdList"></div></section>
+
+<section id="t-reg" class="hide">
+<div class="card"><label>Customer</label>
+<div class="sw"><svg class="i"><use href="#i-search"/></svg><input id="rs" placeholder="Search name or phone" oninput="fillSel()"></div>
+<select id="rc" onchange="pick()" style="margin-top:8px"></select>
+<p class="muted" id="cinfo" style="margin:8px 0 0"></p>
+<label>Month</label><input id="mo" type="month" onchange="loadReg()"></div>
+<div id="regBox" class="hide">
+<div class="card">
+<label style="display:flex;gap:8px;align-items:center;font-size:15px;color:var(--tx);margin:0"><input type="checkbox" id="onlyD" onchange="render()"> Show only delivered days</label>
+<p class="muted" id="cnt"></p><div id="days"></div></div>
+<div class="card sum" id="sum"></div>
+<div id="lockBox"></div>
+<div class="card"><div class="row">
+<button onclick="dlPDF()"><svg class="i"><use href="#i-download"/></svg>Download PDF</button><button class="p" onclick="sharePDF()"><svg class="i"><use href="#i-share"/></svg>Share PDF</button>
+<button onclick="waText()"><svg class="i"><use href="#i-chat"/></svg>WhatsApp text</button></div>
+<p class="muted">Sharing never marks a bill as paid. Add payments in the Payments tab.</p></div>
+<div class="card" id="adjCard"></div>
+<div class="card" id="qrCard"><h3><svg class="i"><use href="#i-qr"/></svg>Payment QR</h3><div id="qrBox"></div></div>
+<div class="card" id="billsCard"></div>
+</div></section>
+
+<section id="t-cus" class="hide">
+<div class="card"><h3 id="cfT">Add customer</h3><input type="hidden" id="cid">
+<label>Name *</label><input id="cn">
+<label>Mobile *</label><input id="cp" inputmode="tel">
+<label>Milk time *</label><select id="cm"><option value="">Select: morning / evening / both</option><option value="morning">Morning only</option><option value="evening">Evening only</option><option value="both">Both morning and evening</option></select>
+<label>Milk type *</label><select id="cmt" onchange="typeFields()"><option value="">Select: cow / buffalo / both</option><option value="cow">Cow</option><option value="buffalo">Buffalo</option><option value="both">Both cow and buffalo</option></select>
+<div id="fCow" class="row"><div><label>Cow: litres per delivery (blank = shop default)</label><input id="cdc" type="number" step="0.25" min="0"></div>
+<div><label>Cow: price per litre (blank = shop price)</label><input id="crc" type="number" step="0.01" min="0"></div></div>
+<div id="fBuf" class="row"><div><label>Buffalo: litres per delivery (blank = shop default)</label><input id="cdb" type="number" step="0.25" min="0"></div>
+<div><label>Buffalo: price per litre (blank = shop price)</label><input id="crb" type="number" step="0.01" min="0"></div></div>
+<label>Address</label><input id="ca"><label>Notes</label><input id="cx">
+<p class="row"><button class="p" onclick="saveCus()"><svg class="i"><use href="#i-check"/></svg>Save customer</button><button onclick="clearCus()">Clear</button></p></div>
+<div class="card"><div class="sw"><svg class="i"><use href="#i-search"/></svg><input id="cs" placeholder="Search customers" oninput="listCus()"></div><div id="cl"></div></div></section>
+
+<section id="t-pay" class="hide"><div class="seg" id="mseg"><button data-m="pay" class="on" onclick="mSub('pay')">Payments</button><button data-m="bill" onclick="mSub('bill')">Bill run</button></div>
+<div id="m-pay">
+<div class="card"><label>Customer</label><select id="pc" onchange="loadPay()"></select>
+<p id="pb"></p>
+<label>Date</label><input id="pd" type="date">
+<label>Amount (₹)</label><input id="pa" type="number" step="0.01" min="0" inputmode="decimal">
+<label>Method</label><select id="pm"><option>Cash</option><option>UPI</option><option>Bank transfer</option><option>Other</option></select>
+<label>Note</label><input id="pn"><p><button class="p full" onclick="addPay()"><svg class="i"><use href="#i-check"/></svg>Record payment</button></p></div>
+<div class="card"><table id="pl"></table></div></div>
+<div id="m-bill" class="hide"><div class="card"><label>Month</label><input id="brm" type="month" onchange="brLoad()"><p class="muted">Locks every bill that has no missing days, then sends them one by one.</p></div><div id="brOut"></div></div>
+</section>
+
+<section id="t-ana" class="hide">
+<div class="seg" id="aseg"><button data-a="day" class="on">Daily</button><button data-a="mon">Monthly</button><button data-a="cus">Customers</button><button data-a="ins">Insights</button><button data-a="ai">AI advice</button></div>
+<div id="amoCard" class="card hide"><label>Month</label><input id="amo" type="month" onchange="loadAn()"></div>
+<div id="a-day"><div class="card"><div class="row" style="flex-wrap:nowrap"><button aria-label="Previous day" onclick="setD(-1)" style="flex:none;padding:0 12px"><svg class="i"><use href="#i-chevl"/></svg></button><input id="adt" type="date" onchange="loadDaily()"><button aria-label="Next day" onclick="setD(1)" style="flex:none;padding:0 12px"><svg class="i"><use href="#i-chevr"/></svg></button></div></div><div id="dayOut"></div></div>
+<div id="a-mon" class="hide"><div class="card"><div class="row"><div><label>Daily chart by</label><select id="dmode" onchange="renderMon()"><option value="time">Morning / Evening</option><option value="milk">Cow / Buffalo</option></select></div><div><label>Months to show</label><select id="mspan" onchange="renderMon()"><option value="6">Last 6 months</option><option value="12">Last 12 months</option></select></div></div></div><div id="monOut"></div></div>
+<div id="a-cus" class="hide"><div id="cusOut"></div></div>
+<div id="a-ins" class="hide"><div id="insOut"></div></div>
+<div id="a-ai" class="hide"><div class="card"><h3><svg class="i"><use href="#i-spark"/></svg>AI advice</h3><p class="muted">Names, phone numbers and addresses are never sent. Customer names become Customer 1, 2, 3 before sending.</p>
+<button class="p full" onclick="runAI('advice')"><svg class="i"><use href="#i-spark"/></svg>Get advice</button>
+<div class="row" style="margin-top:8px"><button onclick="runAI('weekly')">Weekly summary</button><button onclick="runAI('monthly')">Monthly summary</button></div>
+<label>Ask about my dairy</label><input id="aiQ" placeholder="Who should I remind first?"><p><button class="full" onclick="askAI()">Ask</button></p></div><div id="aiOut"></div></div>
+</section>
+
+<section id="t-set" class="hide">
+<div class="card">
+<label>Business name</label><input id="sb"><label>Phone</label><input id="sp">
+<label>Address</label><input id="sa"><label>UPI ID (used for the payment QR)</label><input id="su" placeholder="name@bank">
+<div class="row"><div><label>Cow price per litre (₹)</label><input id="sr" type="number" step="0.01" min="0"></div>
+<div><label>Buffalo price per litre (₹)</label><input id="sbf" type="number" step="0.01" min="0"></div>
+<div><label>Default litres per delivery</label><input id="sd" type="number" step="0.25" min="0"></div></div>
+<div class="row"><div><label>Cow cost per litre (₹, optional)</label><input id="scc" type="number" step="0.01" min="0"></div><div><label>Buffalo cost per litre (₹, optional)</label><input id="scb" type="number" step="0.01" min="0"></div></div>
+<label>Groq API key (optional, for AI advice)</label><input id="sgk" type="password" autocomplete="off" placeholder="gsk_...">
+<label>Groq model (optional)</label><input id="sgm" placeholder="openai/gpt-oss-120b">
+<p class="muted">Saved in your database, not in this file. Anyone who can log in can use it. Leave empty to use the Supabase function instead.</p>
+<label>Bill footer</label><input id="sf">
+<p class="muted">Changing the price affects only new entries. Saved days keep their old rate.</p>
+<p><button class="p full" onclick="saveSet()"><svg class="i"><use href="#i-check"/></svg>Save settings</button></p></div>
+<div class="card"><h3><svg class="i"><use href="#i-db"/></svg>Backup</h3>
+<p class="muted">Downloads one file with customers, milk entries, payments, adjustments, bills and settings.</p>
+<button class="full" onclick="backup('weekly')"><svg class="i"><use href="#i-download"/></svg>Weekly data (last 7 days)</button>
+<label>Month for monthly backup</label><input id="bm" type="month">
+<p><button class="full" onclick="backup('monthly')"><svg class="i"><use href="#i-download"/></svg>Monthly data</button></p>
+<button class="full" onclick="backup('full')"><svg class="i"><use href="#i-download"/></svg>Full backup (everything)</button></div></section>
+</div>
+
+
+<nav id="nav" class="glass">
+<button data-t="today" class="on"><svg class="i"><use href="#i-cal"/></svg>Today</button><button data-t="reg"><svg class="i"><use href="#i-drop"/></svg>Register</button><button data-t="cus"><svg class="i"><use href="#i-users"/></svg>Customers</button>
+<button data-t="pay"><svg class="i"><use href="#i-wallet"/></svg>Money</button><button data-t="ana"><svg class="i"><use href="#i-chart"/></svg>Analytics</button><button data-t="set"><svg class="i"><use href="#i-sliders"/></svg>Settings</button></nav>
+</div>
+<div id="saveBar" class="glass"><span id="sbn">0 unsaved</span><button onclick="discardAll()">Discard</button><button class="p" onclick="saveAll()">Save all</button></div>
+<div id="toast" class="glass"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+// ===== CONFIG: fill in your own Supabase project values (Supabase dashboard > Project Settings > API) =====
+const SUPABASE_URL='YOUR_SUPABASE_URL', SUPABASE_KEY='YOUR_SUPABASE_ANON_KEY';
+if(SUPABASE_URL.startsWith('YOUR_')||SUPABASE_KEY.startsWith('YOUR_'))alert('Dairy Desk is not configured. Open index.html and set SUPABASE_URL and SUPABASE_KEY.');
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=i=>document.getElementById(i), STEP=250;
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const SL=['morning','evening'], SLN={morning:'Morning',evening:'Evening'}, SLC={morning:'Morning',evening:'Evening',both:'Morning + Evening'};
+const TYN={cow:'Cow',buffalo:'Buffalo'};
+
+// ===== Bengali (labels only; PDF and WhatsApp text stay English) =====
+let LANG='en';try{LANG=localStorage.getItem('lang')||'en'}catch(e){}
+const BN={
+'Log in to continue':'চালিয়ে যেতে লগ ইন করুন','Email':'ইমেল','Password':'পাসওয়ার্ড','Log in':'লগ ইন',
+'Register':'রেজিস্টার','Customers':'গ্রাহক','Payments':'পেমেন্ট','Settings':'সেটিংস','Previous day':'আগের দিন','Next day':'পরের দিন',
+'Customer':'গ্রাহক','Search name or phone':'নাম বা ফোন দিয়ে খুঁজুন','Month':'মাস','Select customer':'গ্রাহক বাছুন',
+'Show only delivered days':'শুধু দুধ দেওয়া দিনগুলো দেখান','No delivered days yet.':'এখনও কোনো দিন দুধ দেওয়া হয়নি।',
+'Not entered':'লেখা হয়নি','Saved':'সেভ হয়েছে','Unsaved':'সেভ হয়নি','Fill default':'ডিফল্ট ভরুন',
+'Morning':'সকাল','Evening':'সন্ধ্যা','Morning + Evening':'সকাল + সন্ধ্যা','Cow':'গরু','Buffalo':'মহিষ',
+'Total milk':'মোট দুধ','Milk charges':'দুধের দাম','Extra charges':'অতিরিক্ত চার্জ','Discount':'ছাড়','Extra charge':'অতিরিক্ত চার্জ',
+'Previous balance':'আগের বাকি','Paid this month':'এই মাসে দেওয়া','Balance to pay':'মোট বাকি',
+'Download PDF':'PDF ডাউনলোড','Share PDF':'PDF শেয়ার','WhatsApp text':'হোয়াটসঅ্যাপ মেসেজ',
+'Sharing never marks a bill as paid. Add payments in the Payments tab.':'শেয়ার করলে বিল পরিশোধ হয়ে যায় না। পেমেন্ট ট্যাবে পেমেন্ট যোগ করুন।',
+'Payment QR':'পেমেন্ট QR','Add your UPI ID in Settings to show the payment QR.':'পেমেন্ট QR দেখাতে সেটিংসে UPI আইডি দিন।','No balance to pay.':'কোনো বাকি নেই।',
+'Save all':'সব সেভ করুন','Lock bill':'বিল লক করুন','Unlock bill':'বিল আনলক করুন','Void':'বাতিল',
+'Lock the bill when the month is finished. It gets a bill number and cannot be changed by accident.':'মাস শেষ হলে বিল লক করুন। বিলে নম্বর বসবে এবং ভুল করে বদলানো যাবে না।',
+'Bill locked. Quantities and adjustments cannot be changed.':'বিল লক করা আছে। পরিমাণ ও ছাড়/অতিরিক্ত চার্জ বদলানো যাবে না।',
+'Adjustments':'ছাড় ও অতিরিক্ত চার্জ','No adjustments this month.':'এই মাসে কোনো ছাড় বা অতিরিক্ত চার্জ নেই।','Reason (optional)':'কারণ (ঐচ্ছিক)','Add':'যোগ করুন',
+'Bills':'বিল','No bills yet.':'এখনও কোনো বিল নেই।','Open':'খুলুন',
+'Add customer':'গ্রাহক যোগ করুন','Edit customer':'গ্রাহক এডিট','Name *':'নাম *','Mobile *':'মোবাইল *','Milk time *':'দুধের সময় *',
+'Select: morning / evening / both':'বাছুন: সকাল / সন্ধ্যা / দুটোই','Morning only':'শুধু সকাল','Evening only':'শুধু সন্ধ্যা','Both morning and evening':'সকাল ও সন্ধ্যা দুটোই',
+'Milk type *':'দুধের ধরন *','Select: cow / buffalo / both':'বাছুন: গরু / মহিষ / দুটোই','Both cow and buffalo':'গরু ও মহিষ দুটোই',
+'Cow: litres per delivery (blank = shop default)':'গরু: প্রতি বারে লিটার (খালি = দোকানের ডিফল্ট)','Cow: price per litre (blank = shop price)':'গরু: প্রতি লিটার দাম (খালি = দোকানের দাম)',
+'Buffalo: litres per delivery (blank = shop default)':'মহিষ: প্রতি বারে লিটার (খালি = দোকানের ডিফল্ট)','Buffalo: price per litre (blank = shop price)':'মহিষ: প্রতি লিটার দাম (খালি = দোকানের দাম)',
+'Cow milk':'গরুর দুধ','Buffalo milk':'মহিষের দুধ',
+'Litres per delivery (blank = shop default)':'প্রতি বারে লিটার (খালি = দোকানের ডিফল্ট)','Price per litre (blank = shop price for the milk type)':'প্রতি লিটার দাম (খালি = এই দুধের দোকানের দাম)',
+'Address':'ঠিকানা','Notes':'নোট','Save customer':'গ্রাহক সেভ করুন','Clear':'মুছুন','Search customers':'গ্রাহক খুঁজুন','No customers yet.':'এখনও কোনো গ্রাহক নেই।',
+'(inactive)':'(বন্ধ)','Edit':'এডিট','Deactivate':'বন্ধ করুন','Restore':'চালু করুন',
+'Date':'তারিখ','Amount':'টাকা','Method':'পদ্ধতি','Amount (₹)':'টাকা (₹)','Note':'নোট','Cash':'নগদ','Bank transfer':'ব্যাংক ট্রান্সফার','Other':'অন্যান্য','Record payment':'পেমেন্ট নথিভুক্ত করুন',
+'Business name':'ব্যবসার নাম','Phone':'ফোন','UPI ID (used for the payment QR)':'UPI আইডি (পেমেন্ট QR-এর জন্য)',
+'Cow price per litre (₹)':'গরুর দুধের দাম প্রতি লিটার (₹)','Buffalo price per litre (₹)':'মহিষের দুধের দাম প্রতি লিটার (₹)','Default litres per delivery':'প্রতি বারে ডিফল্ট লিটার',
+'Bill footer':'বিলের নিচের লেখা','Changing the price affects only new entries. Saved days keep their old rate.':'দাম বদলালে শুধু নতুন এন্ট্রিতে প্রভাব পড়বে। সেভ করা দিনগুলো পুরনো দামেই থাকবে।',
+'Save settings':'সেটিংস সেভ করুন','Backup':'ব্যাকআপ','Downloads one file with customers, milk entries, payments, adjustments, bills and settings.':'গ্রাহক, দুধের এন্ট্রি, পেমেন্ট, ছাড়/চার্জ, বিল ও সেটিংস নিয়ে একটি ফাইল ডাউনলোড হবে।',
+'Weekly data (last 7 days)':'সাপ্তাহিক ডেটা (শেষ ৭ দিন)','Month for monthly backup':'মাসিক ব্যাকআপের মাস','Monthly data':'মাসিক ডেটা','Full backup (everything)':'সম্পূর্ণ ব্যাকআপ (সব কিছু)',
+'Settings saved':'সেটিংস সেভ হয়েছে','Customer saved':'গ্রাহক সেভ হয়েছে','Name and mobile are required':'নাম ও মোবাইল দিতে হবে',
+'Select milk time: morning, evening or both':'দুধের সময় বাছুন: সকাল, সন্ধ্যা বা দুটোই','Select milk type: cow, buffalo or both':'দুধের ধরন বাছুন: গরু, মহিষ বা দুটোই',
+'Nothing to save':'সেভ করার কিছু নেই','Enter a quantity first (0 if no delivery)':'আগে পরিমাণ লিখুন (দুধ না দিলে 0)','Enter a valid quantity':'সঠিক পরিমাণ লিখুন',
+'Save the unsaved entries first':'আগে সেভ না হওয়া এন্ট্রিগুলো সেভ করুন','Invalid phone number':'ফোন নম্বর ঠিক নয়','Enter customer, date and amount':'গ্রাহক, তারিখ ও টাকা দিন',
+'Payment recorded':'পেমেন্ট নথিভুক্ত হয়েছে','Preparing backup...':'ব্যাকআপ তৈরি হচ্ছে...','Backup downloaded':'ব্যাকআপ ডাউনলোড হয়েছে','Pick a month':'মাস বাছুন','Check price and litres':'দাম ও লিটার দেখে নিন',
+'Added':'যোগ হয়েছে','Enter an amount':'টাকার অঙ্ক দিন','Bill unlocked':'বিল আনলক হয়েছে','No entries to bill':'বিল করার মতো এন্ট্রি নেই','Could not get a bill number. Try again.':'বিল নম্বর পাওয়া যায়নি। আবার চেষ্টা করুন।',
+'PDF downloaded. Attach it in WhatsApp manually.':'PDF ডাউনলোড হয়েছে। হোয়াটসঅ্যাপে নিজে জুড়ে দিন।','Saved ✓':'সেভ হয়েছে',
+'Another customer has this number. Save anyway?':'অন্য গ্রাহকের এই নম্বর আছে। তবুও সেভ করবেন?','Delete this payment?':'এই পেমেন্ট মুছবেন?','Delete this adjustment?':'এটি মুছবেন?',
+'Discard unsaved entries?':'সেভ না হওয়া এন্ট্রি বাদ দেবেন?',
+'Lock this bill? Quantities and adjustments for this month cannot be changed after locking.':'বিলটি লক করবেন? লক করার পর এই মাসের পরিমাণ ও ছাড়/চার্জ বদলানো যাবে না।'};
+const MBN=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+MONTHS.forEach((m,i)=>BN[m]=MBN[i]);
+const MB={Jan:'জানু',Feb:'ফেব্রু',Mar:'মার্চ',Apr:'এপ্রিল',May:'মে',Jun:'জুন',Jul:'জুলাই',Aug:'আগস্ট',Sep:'সেপ্টে',Oct:'অক্টো',Nov:'নভে',Dec:'ডিসে'};
+const WB={Sun:'রবি',Mon:'সোম',Tue:'মঙ্গল',Wed:'বুধ',Thu:'বৃহ',Fri:'শুক্র',Sat:'শনি'};
+const RX=[
+[/^(\d+) unsaved$/,m=>`${m[1]}টি সেভ হয়নি`],
+[/^(\d+) entries saved$/,m=>`${m[1]}টি এন্ট্রি সেভ হয়েছে`],
+[/^Delivered on (\d+) of (\d+) days\./,m=>`${m[2]} দিনের মধ্যে ${m[1]} দিন দুধ দেওয়া হয়েছে। পরিমাণ ml-এ লিখুন (250 = 0.25 L)।`],
+[/^(\d+) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/,m=>`${m[1]} ${MB[m[2]]}`],
+[/^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) · (.*)$/,m=>`${WB[m[1]]} · ${m[2]}`],
+[/^Total balance: (.*)$/,m=>`মোট বাকি: ${m[1]}`],
+[/^Pay (.*)$/,m=>`${m[1]} দিন`],
+[/^Locked · (.*)$/,m=>`লক করা · ${m[1]}`],
+[/^Bill locked: (.*)$/,m=>`বিল লক হয়েছে: ${m[1]}`],
+[/^Deactivate (.*)\? History is kept\.$/,m=>`${m[1]} কে বন্ধ করবেন? আগের হিসাব থাকবে।`],
+[/^(\d+) entries are not entered\. They will not be billed\. Continue\?$/,m=>`${m[1]}টি এন্ট্রি লেখা হয়নি। এগুলো বিলে ধরা হবে না। এগিয়ে যাবেন?`],
+[/^Unlock bill (.*)\? .*$/,m=>`${m[1]} আনলক করবেন? নম্বরটি বাতিল হিসেবে থাকবে, আবার ব্যবহার হবে না।`]];
+const memo=new WeakMap();
+function trs(str){if(LANG!=='bn')return str;const k=str.trim();if(!k)return str;
+  if(BN[k])return str.replace(k,()=>BN[k]);
+  for(const [r,f] of RX){const m=k.match(r);if(m)return str.replace(k,()=>f(m))}return str}
+function tNode(n,force){const m=memo.get(n);if(!force&&m&&n.nodeValue===m.out)return;
+  const en=(force&&m&&n.nodeValue===m.out)?m.en:n.nodeValue,out=trs(en);memo.set(n,{en,out});if(out!==n.nodeValue)n.nodeValue=out}
+function walk(root,force){
+  if(root.nodeType===3){tNode(root,force);return}
+  if(root.nodeType!==1)return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>/^(SCRIPT|STYLE)$/.test(n.parentNode.nodeName)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  let n;while(n=w.nextNode())tNode(n,force);
+  [root,...root.querySelectorAll('[placeholder]')].forEach(e=>{if(e.placeholder===undefined||!e.hasAttribute||!e.hasAttribute('placeholder'))return;
+    if(!e.dataset.enph)e.dataset.enph=e.getAttribute('placeholder');e.setAttribute('placeholder',trs(e.dataset.enph))})}
+new MutationObserver(ms=>{if(LANG!=='bn')return;ms.forEach(m=>{if(m.type==='characterData')tNode(m.target);else m.addedNodes.forEach(n=>walk(n))})})
+  .observe(document.body,{childList:true,subtree:true,characterData:true});
+function applyLang(){$('lg').textContent=LANG==='bn'?'English':'বাংলা';document.documentElement.lang=LANG==='bn'?'bn':'en';walk(document.body,true)}
+function toggleLang(){LANG=LANG==='bn'?'en':'bn';try{localStorage.setItem('lang',LANG)}catch(e){}applyLang()}
+const ask=m=>confirm(trs(m));
+
+// ===== helpers =====
+let S={business_name:'Dairy Desk',phone:'',address:'',upi_id:'',price_per_litre:70,price_buffalo:80,default_ml:1000,footer:''};
+let customers=[],cur=null,entries={},prev=0,pays=[],adjs=[],inv=null,invs=[],regTk=0;
+const ic=n=>`<svg class="i"><use href="#i-${n}"/></svg>`;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=p=>(p/100).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const inr=p=>'₹'+fmt(p), rs=p=>'Rs. '+fmt(p);
+const L=ml=>(ml/1000).toFixed(2);
+const paise=(ml,rate)=>Math.round(ml*Math.round(rate*100)/1000);
+const TYS=['cow','buffalo'];
+const priceOf=ty=>ty==='buffalo'?S.price_buffalo:S.price_per_litre;
+const typesOf=c=>c.milk_type==='both'?TYS:[c.milk_type||'cow'];
+const priceFor=(c,ty)=>(ty==='buffalo'?c.price_buffalo:c.price_cow)??priceOf(ty);
+const defFor=(c,ty)=>(ty==='buffalo'?c.default_ml_buffalo:c.default_ml_cow)??S.default_ml;
+const slotsOf=c=>c.slots==='both'?SL:[c.slots||'morning'];
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const dirtyN=()=>Object.values(entries).filter(e=>e.dirty).length;
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200)}
+function bar(){}
+function chk(r){if(r.error){toast('Error: '+r.error.message);throw r.error}return r.data}
+
+// ===== auth =====
+async function init(){
+  applyLang();
+  const {data}=await db.auth.getSession();
+  if(!data.session){$('login').classList.remove('hide');return}
+  $('login').classList.add('hide');$('app').classList.remove('hide');
+  const d=new Date(),mm=ymd(d).slice(0,7);$('mo').value=mm;$('bm').value=mm;$('pd').value=ymd(d);
+  await loadSet();await loadCus();
+  svst();todayOpen();
+}
+async function login(){
+  const r=await db.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});
+  if(r.error)return toast(r.error.message);init();
+}
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('[data-t]').forEach(x=>x.classList.toggle('on',x===b));
+  ['today','reg','cus','pay','ana','set'].forEach(t=>$('t-'+t).classList.toggle('hide',t!==b.dataset.t));
+  if(b.dataset.t==='pay')mSub('pay');if(b.dataset.t==='ana')anaOpen();if(b.dataset.t==='today')todayOpen();
+});
+
+// ===== settings =====
+async function loadSet(){
+  const r=await db.from('settings').select('*').eq('id',1).maybeSingle();
+  if(r.data)S={...S,...r.data};
+  $('bn').textContent=S.business_name;
+  $('sb').value=S.business_name;$('sp').value=S.phone||'';$('sa').value=S.address||'';
+  $('su').value=S.upi_id||'';$('sr').value=S.price_per_litre;$('sbf').value=S.price_buffalo;$('sd').value=S.default_ml/1000;$('sf').value=S.footer||'';$('scc').value=S.cost_cow??'';$('scb').value=S.cost_buffalo??'';$('sgk').value=S.groq_key||'';$('sgm').value=S.groq_model||'';
+}
+async function saveSet(){
+  const v={id:1,business_name:$('sb').value.trim()||'Dairy Desk',phone:$('sp').value.trim(),address:$('sa').value.trim(),
+    upi_id:$('su').value.trim(),price_per_litre:+$('sr').value,price_buffalo:+$('sbf').value,default_ml:Math.round($('sd').value*1000),footer:$('sf').value.trim(),
+    cost_cow:$('scc').value===''?null:+$('scc').value,cost_buffalo:$('scb').value===''?null:+$('scb').value,
+    groq_key:$('sgk').value.trim()||null,groq_model:$('sgm').value.trim()||null};
+  if(!(v.price_per_litre>=0)||!(v.price_buffalo>=0)||!(v.default_ml>=0)||(v.cost_cow!=null&&!(v.cost_cow>=0))||(v.cost_buffalo!=null&&!(v.cost_buffalo>=0)))return toast('Check price and litres');
+  chk(await db.from('settings').upsert(v));toast('Settings saved');await loadSet();if(cur&&!$('regBox').classList.contains('hide'))render();
+}
+
+// ===== customers =====
+async function loadCus(){
+  customers=chk(await db.from('customers').select('*').order('name'));
+  listCus();fillSel();fillPaySel();
+}
+function listCus(){
+  const q=$('cs').value.toLowerCase();
+  $('cl').innerHTML=customers.filter(c=>(c.name+c.phone).toLowerCase().includes(q)).map(c=>
+    `<div class="cus"><div><b>${esc(c.name)}</b> ${c.active?'':'<span class="ne">(inactive)</span>'}<br><span class="muted">${esc(c.phone)} · <span>${SLC[c.slots]||'Morning'}</span> · ${typesOf(c).map(ty=>`<span>${TYN[ty]}</span> ${L(defFor(c,ty))} L ₹${priceFor(c,ty)}/L`).join(' · ')}</span></div>
+    <button class="sm" onclick="editCus('${c.id}')">${ic('pencil')}Edit</button><button class="sm ${c.active?'d':''}" onclick="toggleCus('${c.id}')">${c.active?'Deactivate':'Restore'}</button></div>`).join('')||'<p class="muted">No customers yet.</p>';
+}
+function typeFields(){const v=$('cmt').value;$('fCow').classList.toggle('hide',v==='buffalo');$('fBuf').classList.toggle('hide',v==='cow')}
+function clearCus(){['cid','cn','cp','cm','cmt','cdc','cdb','crc','crb','ca','cx'].forEach(i=>$(i).value='');$('cfT').textContent='Add customer';typeFields()}
+function editCus(id){const c=customers.find(x=>x.id===id),lt=v=>v==null?'':v/1000;
+  $('cid').value=c.id;$('cn').value=c.name;$('cp').value=c.phone;$('cm').value=c.slots||'morning';$('cmt').value=c.milk_type||'cow';
+  $('cdc').value=lt(c.default_ml_cow);$('cdb').value=lt(c.default_ml_buffalo);$('crc').value=c.price_cow??'';$('crb').value=c.price_buffalo??'';
+  $('ca').value=c.address||'';$('cx').value=c.notes||'';$('cfT').textContent='Edit customer';typeFields();scrollTo(0,0)}
+async function saveCus(){
+  const ml=id=>$(id).value===''?null:Math.round($(id).value*1000),pr=id=>$(id).value===''?null:+$(id).value;
+  const v={name:$('cn').value.trim(),phone:$('cp').value.trim(),slots:$('cm').value,milk_type:$('cmt').value,address:$('ca').value.trim(),notes:$('cx').value.trim(),
+    default_ml_cow:ml('cdc'),default_ml_buffalo:ml('cdb'),price_cow:pr('crc'),price_buffalo:pr('crb')};
+  if(!v.name||!v.phone)return toast('Name and mobile are required');
+  if(!v.slots)return toast('Select milk time: morning, evening or both');
+  if(!v.milk_type)return toast('Select milk type: cow, buffalo or both');
+  const id=$('cid').value;
+  if(!id&&customers.some(c=>c.phone===v.phone)&&!ask('Another customer has this number. Save anyway?'))return;
+  chk(id?await db.from('customers').update(v).eq('id',id):await db.from('customers').insert(v));
+  toast('Customer saved');clearCus();await loadCus();
+  if(cur&&cur.id===id){cur=customers.find(c=>c.id===id);if(!$('regBox').classList.contains('hide'))render()}
+}
+async function toggleCus(id){const c=customers.find(x=>x.id===id);
+  if(c.active&&!ask('Deactivate '+c.name+'? History is kept.'))return;
+  chk(await db.from('customers').update({active:!c.active}).eq('id',id));loadCus()}
+
+// ===== register =====
+function fillSel(){
+  const q=$('rs').value.toLowerCase(),old=$('rc').value;
+  const list=customers.filter(c=>c.active&&(c.name+c.phone).toLowerCase().includes(q));
+  $('rc').innerHTML='<option value="">Select customer</option>'+list.map(c=>`<option value="${c.id}">${esc(c.name)} (${esc(c.phone)})</option>`).join('');
+  if(list.some(c=>c.id===old))$('rc').value=old;
+  if(list.length===1&&q){$('rc').value=list[0].id;pick()}
+}
+function pick(){cur=customers.find(c=>c.id===$('rc').value)||null;loadReg()}
+const monthRange=()=>{const mo=$('mo').value,[y,m]=mo.split('-').map(Number),n=new Date(y,m,0).getDate();return[`${mo}-01`,`${mo}-${String(n).padStart(2,'0')}`]};
+async function loadReg(){
+  const tk=++regTk;
+  if(!cur||!$('mo').value){$('regBox').classList.add('hide');bar();return}
+  const [a,b]=monthRange();
+  const [e,p,pb,ad,iv,il]=await Promise.all([
+    db.from('milk_entries').select('*').eq('customer_id',cur.id).gte('entry_date',a).lte('entry_date',b),
+    db.from('payments').select('amount').eq('customer_id',cur.id).gte('paid_on',a).lte('paid_on',b),
+    db.rpc('prev_balance',{cid:cur.id,before:a}),
+    db.from('adjustments').select('*').eq('customer_id',cur.id).eq('adj_month',a).order('created_at'),
+    db.from('invoices').select('*').eq('customer_id',cur.id).eq('bill_month',a).eq('status','locked').maybeSingle(),
+    db.from('invoices').select('id,invoice_no,bill_month,status,balance_paise').eq('customer_id',cur.id).order('bill_month',{ascending:false}).limit(24)]);
+  if(tk!==regTk)return;
+  entries={};chk(e).forEach(r=>entries[r.entry_date+'|'+r.slot+'|'+r.milk_type]={ml:r.ml,rate:+r.rate,milk_type:r.milk_type,saved:true});
+  prev=Number(chk(pb));pays=chk(p).map(x=>Math.round(x.amount*100));
+  adjs=chk(ad);inv=chk(iv);invs=chk(il);
+  Q.m.forEach(v=>{if(v.customer_id===cur.id&&v.entry_date>=a&&v.entry_date<=b)entries[v.entry_date+'|'+v.slot+'|'+v.milk_type]={ml:v.ml,rate:+v.rate,milk_type:v.milk_type,saved:false,dirty:true}});
+  $('regBox').classList.remove('hide');render();renderAdj();renderInvs();
+}
+async function loadAdj(){const [a]=monthRange();
+  adjs=chk(await db.from('adjustments').select('*').eq('customer_id',cur.id).eq('adj_month',a).order('created_at'));renderAdj();summary()}
+async function refreshMoney(){
+  if(!cur||!$('mo').value||$('regBox').classList.contains('hide'))return;const [a,b]=monthRange();
+  const [p,pb]=await Promise.all([db.from('payments').select('amount').eq('customer_id',cur.id).gte('paid_on',a).lte('paid_on',b),db.rpc('prev_balance',{cid:cur.id,before:a})]);
+  pays=chk(p).map(x=>Math.round(x.amount*100));prev=Number(chk(pb));summary()}
+function dates(){const [y,m]=$('mo').value.split('-').map(Number),n=new Date(y,m,0).getDate();
+  return Array.from({length:n},(_,i)=>`${$('mo').value}-${String(i+1).padStart(2,'0')}`)}
+const dayRows=iso=>{const o=[];SL.forEach(s=>TYS.forEach(ty=>{const k=iso+'|'+s+'|'+ty;if((slotsOf(cur).includes(s)&&typesOf(cur).includes(ty))||entries[k])o.push(k)}));return o};
+const dayMl=iso=>dayRows(iso).reduce((a,k)=>a+(entries[k]?.ml||0),0);
+function render(){
+  const only=$('onlyD').checked,dis=inv?' disabled':'';let h='',del=0;
+  $('cinfo').innerHTML=typesOf(cur).map(ty=>`<b>${TYN[ty]}</b> ₹${priceFor(cur,ty)}/L`).join(' · ')+' · <span>'+(SLC[cur.slots]||'Morning')+'</span>';
+  dates().forEach(iso=>{
+    const tot=dayMl(iso);if(tot>0)del++;
+    if(only&&tot===0)return;
+    const wd=WD[new Date(iso+'T00:00:00').getDay()];
+    h+=`<div class="day"><div class="dh"><div class="dt">${+iso.slice(8)} ${MONTHS[+iso.slice(5,7)-1].slice(0,3)} <small>${wd} · ${L(tot)} L</small></div>
+    <button class="sm"${dis} onclick="fillDay('${iso}')">${ic('drop')}Fill default</button></div>`+
+    dayRows(iso).map(k=>{const [,s,ty]=k.split('|'),e=entries[k];
+      return `<div class="slot"><div class="sl"><b>${ic(s==='morning'?'sun':'moon')}${SLN[s]}</b><span class="ty">${TYN[ty]}</span><span id="st_${k}">${stHtml(e)}</span></div>
+      <button class="s"${dis} aria-label="Minus 250 ml" onclick="adj('${k}',-${STEP})">${ic('minus')}</button>
+      <input type="number" min="0" step="50" inputmode="numeric"${dis} value="${e?e.ml:''}" placeholder="ml" onchange="setMl('${k}',this.value)">
+      <button class="s"${dis} aria-label="Plus 250 ml" onclick="adj('${k}',${STEP})">${ic('plus')}</button></div>`}).join('')+'</div>';
+  });
+  $('days').innerHTML=h||'<p class="muted">No delivered days yet.</p>';
+  $('cnt').textContent=`Delivered on ${del} of ${dates().length} days. Quantity is in ml (250 = 0.25 L).`;
+  summary();
+}
+function totals(){
+  if(inv)return inv.snapshot.totals;
+  let ml=0,ch=0,ex=0,dc=0;Object.values(entries).forEach(e=>{ml+=e.ml;ch+=paise(e.ml,e.rate)});
+  adjs.forEach(a=>{const p=Math.round(a.amount*100);if(a.kind==='extra')ex+=p;else dc+=p});
+  const paid=pays.reduce((a,b)=>a+b,0);return{ml,ch,ex,dc,prev,paid,bal:prev+ch+ex-dc-paid}}
+function buildBill(){const lines=[];
+  dates().forEach(i=>dayRows(i).forEach(k=>{const e=entries[k];if(e){const [,s,ty]=k.split('|');lines.push({d:i,s,ty,ml:e.ml,rate:e.rate,p:paise(e.ml,e.rate)})}}));
+  return{v:1,month:$('mo').value,customer:{name:cur.name,phone:cur.phone,address:cur.address||''},
+    business:{name:S.business_name,phone:S.phone,address:S.address,upi:S.upi_id,footer:S.footer},
+    lines,adjs:adjs.map(a=>({kind:a.kind,p:Math.round(a.amount*100),note:a.note||''})),totals:totals()}}
+function byType(bill){const o={};bill.lines.forEach(l=>{const x=o[l.ty]||(o[l.ty]={ml:0,p:0});x.ml+=l.ml;x.p+=l.p});return o}
+const typeList=bill=>{const o=byType(bill),a=TYS.filter(ty=>o[ty]&&o[ty].ml>0);return a.length>1?a.map(ty=>[ty,o[ty]]):[]};
+const typeRows=bill=>typeList(bill).map(([ty,x])=>`<div><span>${TYN[ty]} milk</span><span>${L(x.ml)} L · ${inr(x.p)}</span></div>`).join('');
+const typeTxt=bill=>typeList(bill).map(([ty,x])=>`${TYN[ty]}: ${L(x.ml)} litres (${inr(x.p)})\n`).join('');
+const theBill=()=>inv?inv.snapshot:buildBill();
+function summary(){const bill=theBill(),t=bill.totals;
+  $('sum').innerHTML=`<div><span>Total milk</span><span>${L(t.ml)} L</span></div>${typeRows(bill)}<div><span>Milk charges</span><span>${inr(t.ch)}</span></div>`+
+  (t.ex?`<div><span>Extra charges</span><span>${inr(t.ex)}</span></div>`:'')+(t.dc?`<div><span>Discount</span><span>- ${inr(t.dc)}</span></div>`:'')+
+  `<div><span>Previous balance</span><span>${inr(t.prev)}</span></div><div><span>Paid this month</span><span>${inr(t.paid)}</span></div>
+  <div class="t"><span>Balance to pay</span><span>${inr(t.bal)}</span></div>`;
+  $('lockBox').innerHTML=inv?`<div class="card lockb">${ic('lock')}<div style="flex:1"><b>Locked · ${esc(inv.invoice_no)}</b><br><span class="muted">Bill locked. Quantities and adjustments cannot be changed.</span></div><button class="d sm" onclick="unlockBill()">Unlock bill</button></div>`
+    :`<div class="card"><button class="full" onclick="lockBill()">${ic('lock')}Lock bill</button><p class="muted">Lock the bill when the month is finished. It gets a bill number and cannot be changed by accident.</p></div>`;
+  const B=bill.business;
+  if(!B.upi)$('qrBox').innerHTML='<p class="muted">Add your UPI ID in Settings to show the payment QR.</p>';
+  else if(t.bal<=0)$('qrBox').innerHTML='<p class="muted">No balance to pay.</p>';
+  else $('qrBox').innerHTML=qrOf(upiURI(t.bal,B.upi,B.name,bill.month)).createSvgTag(5,10)+`<p><b>Pay ${inr(t.bal)}</b><br><span class="muted">${esc(B.upi)}</span></p>`;
+}
+function entry(k){const ty=k.split('|')[2];return entries[k]||(entries[k]={ml:0,rate:priceFor(cur,ty),milk_type:ty,saved:false})}
+const row=k=>{const [d,s,ty]=k.split('|');return{customer_id:cur.id,entry_date:d,slot:s,milk_type:ty,ml:entries[k].ml,rate:entries[k].rate}};
+const CONF='customer_id,entry_date,slot,milk_type';
+function adj(k,d){if(inv)return;const e=entry(k);e.ml=Math.max(0,e.ml+d);e.dirty=true;qSave(row(k));render()}
+function setMl(k,v){if(inv)return;v=Math.round(+v);if(!(v>=0))return toast('Enter a valid quantity');const e=entry(k);e.ml=v;e.dirty=true;qSave(row(k));render()}
+function fillDay(iso){if(inv)return;dayRows(iso).forEach(k=>{if(!entries[k]){const e=entry(k);e.ml=defFor(cur,k.split('|')[2]);e.dirty=true;qSave(row(k))}});render()}
+
+// ===== adjustments =====
+function renderAdj(){if(!cur)return;
+  $('adjCard').innerHTML=`<h3>${ic('plus')}Adjustments</h3>`+(adjs.length?adjs.map(a=>`<div class="cus"><div><b><span>${a.kind==='extra'?'Extra charge':'Discount'}</span></b> ₹${(+a.amount).toFixed(2)}<br><span class="muted">${esc(a.note||'')}</span></div>${inv?'':`<button class="d sm" aria-label="Delete" onclick="delAdj('${a.id}')">${ic('trash')}</button>`}</div>`).join(''):'<p class="muted">No adjustments this month.</p>')+
+  (inv?'':`<div class="row" style="margin-top:10px"><select id="ak"><option value="discount">Discount</option><option value="extra">Extra charge</option></select><input id="aa" type="number" step="0.01" min="0" inputmode="decimal" placeholder="₹"></div><input id="an" placeholder="Reason (optional)" style="margin-top:8px"><p><button class="p full" onclick="addAdj()">${ic('plus')}Add</button></p>`)}
+async function addAdj(){if(!cur||inv)return;const amt=+$('aa').value;if(!(amt>0))return toast('Enter an amount');
+  const [a]=monthRange();
+  chk(await db.from('adjustments').insert({customer_id:cur.id,adj_month:a,kind:$('ak').value,amount:amt,note:$('an').value.trim()}));
+  toast('Added');await loadAdj()}
+async function delAdj(id){if(!ask('Delete this adjustment?'))return;chk(await db.from('adjustments').delete().eq('id',id));await loadAdj()}
+
+// ===== bills (lock / unlock) =====
+function renderInvs(){
+  $('billsCard').innerHTML=`<h3>${ic('cal')}Bills</h3>`+(invs.length?invs.map(i=>{const [y,m]=i.bill_month.split('-');
+    return `<div class="cus"><div><b>${esc(i.invoice_no)}</b> ${i.status==='void'?'<span class="ne">Void</span>':''}<br><span class="muted"><span>${MONTHS[+m-1]}</span> ${y} · ${inr(i.balance_paise)}</span></div><button class="sm" onclick="openMonth('${i.bill_month.slice(0,7)}')">Open</button></div>`}).join(''):'<p class="muted">No bills yet.</p>')}
+function openMonth(mm){$('mo').value=mm;loadReg()}
+async function lockBill(){
+  if(!cur||!okToBill())return;
+  if(!Object.keys(entries).length)return toast('No entries to bill');
+  if(!ask('Lock this bill? Quantities and adjustments for this month cannot be changed after locking.'))return;
+  const bill=buildBill(),yr=new Date().getFullYear(),[a]=monthRange();
+  for(let i=0;i<3;i++){
+    const last=chk(await db.from('invoices').select('invoice_no').like('invoice_no',`INV-${yr}-%`).order('invoice_no',{ascending:false}).limit(1))[0];
+    const no=`INV-${yr}-${String(last?parseInt(last.invoice_no.split('-')[2])+1:1).padStart(3,'0')}`;
+    const r=await db.from('invoices').insert({invoice_no:no,customer_id:cur.id,bill_month:a,balance_paise:bill.totals.bal,snapshot:bill});
+    if(!r.error){toast('Bill locked: '+no);return loadReg()}
+    if(!/invoice_no/.test(r.error.message)){toast('Error: '+r.error.message);return}
+  }
+  toast('Could not get a bill number. Try again.')}
+async function unlockBill(){
+  if(!inv||!ask('Unlock bill '+inv.invoice_no+'? The number stays as void and is never reused.'))return;
+  chk(await db.from('invoices').update({status:'void',voided_at:new Date().toISOString()}).eq('id',inv.id));
+  toast('Bill unlocked');loadReg()}
+
+// ===== QR =====
+function qrOf(text){const q=qrcode(0,'M');q.addData(text);q.make();return q}
+function upiURI(bal,upi,name,mo){const [y,m]=mo.split('-');
+  return`upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(name)}&am=${(bal/100).toFixed(2)}&cu=INR&tn=${encodeURIComponent('Milk bill '+MONTHS[+m-1]+' '+y)}`}
+
+// ===== bill: pdf + whatsapp (always English) =====
+const mParts=bill=>{const [y,m]=bill.month.split('-');return{m:MONTHS[+m-1],y}};
+const fname=bill=>{const {m,y}=mParts(bill);const n=(bill.customer.name.replace(/[^A-Za-z0-9 _-]/g,'').trim().replace(/\s+/g,'_'))||'Customer';return`${n}_Bill_${m}_${y}.pdf`};
+function okToBill(){
+  if(dirtyN()||Q.m.size){toast('Save the unsaved entries first');return false}
+  const miss=dates().reduce((a,i)=>a+dayRows(i).filter(k=>!entries[k]).length,0);
+  return !miss||ask(miss+' entries are not entered. They will not be billed. Continue?')}
+const gate=()=>!!cur&&(inv?true:okToBill());
+function makePDF(bill=theBill(),iv=inv){
+  const {jsPDF}=window.jspdf,d=new jsPDF(),t=bill.totals,{m,y}=mParts(bill),B=bill.business,C=bill.customer;
+  d.setFontSize(16);d.text(B.name,14,16);d.setFontSize(10);
+  d.text([B.address,B.phone&&'Phone: '+B.phone].filter(Boolean),14,22);
+  d.setFontSize(12);d.text(iv?`Invoice ${iv.invoice_no} - ${m} ${y}`:`Milk bill (not locked) - ${m} ${y}`,14,36);d.setFontSize(10);
+  d.text([`Customer: ${C.name}`,`Phone: ${C.phone}`,C.address?`Address: ${C.address}`:''].filter(Boolean),14,42);
+  d.text('Date: '+(iv?new Date(iv.issued_on+'T00:00:00'):new Date()).toLocaleDateString('en-IN'),150,42);
+  d.autoTable({startY:56,theme:'grid',head:[['Date','Day','Time','Milk','Litres','Rate','Amount']],
+    body:bill.lines.map(l=>[l.d.slice(8)+' '+m.slice(0,3),WD[new Date(l.d+'T00:00:00').getDay()],SLN[l.s],TYN[l.ty]||'Cow',L(l.ml),'Rs. '+(+l.rate).toFixed(2),rs(l.p)]),
+    styles:{fontSize:9},headStyles:{fillColor:[60,60,60]},
+    didDrawPage:()=>{d.setFontSize(8);d.text('Page '+d.internal.getNumberOfPages(),190,290)}});
+  const sb=[['Total milk',L(t.ml)+' L'],...typeList(bill).map(([ty,x])=>[TYN[ty]+' milk',L(x.ml)+' L - '+rs(x.p)]),['Milk charges',rs(t.ch)]];
+  bill.adjs.forEach(a=>sb.push([(a.kind==='discount'?'Discount':'Extra charge')+(a.note?' ('+a.note+')':''),(a.kind==='discount'?'- ':'+ ')+rs(a.p)]));
+  sb.push(['Previous balance',rs(t.prev)],['Paid this month',rs(t.paid)],['Balance to pay',rs(t.bal)]);
+  d.autoTable({startY:d.lastAutoTable.finalY+8,theme:'plain',styles:{fontSize:10},body:sb,columnStyles:{1:{halign:'right'}},margin:{left:100}});
+  let y2=d.lastAutoTable.finalY+10;
+  if(B.upi&&t.bal>0){
+    if(y2>235){d.addPage();y2=20}
+    const q=qrOf(upiURI(t.bal,B.upi,B.name,bill.month)),n=q.getModuleCount(),size=42,c=size/n,x0=16,y0=y2+4;
+    d.setFillColor(0,0,0);
+    for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))d.rect(x0+k*c,y0+r*c,c+0.05,c+0.05,'F');
+    d.setFontSize(11);d.text('Scan to pay '+rs(t.bal),x0+size+8,y0+12);
+    d.setFontSize(10);d.text('UPI ID: '+B.upi,x0+size+8,y0+20);
+    d.text('Open any UPI app and scan.',x0+size+8,y0+27);
+    y2=y0+size+10;
+  }
+  d.setFontSize(10);d.text(B.footer||'Thank you.',14,y2);
+  return d}
+function dlPDF(){if(!gate())return;makePDF().save(fname(theBill()))}
+function waMsg(bill,iv=inv){const t=bill.totals,{m,y}=mParts(bill);
+  return`Hello ${bill.customer.name},\n\nYour milk bill for ${m} ${y} is ready.\n`+(iv?`Invoice: ${iv.invoice_no}\n`:'')+
+    `\nTotal milk: ${L(t.ml)} litres\n${typeTxt(bill)}Milk charges: ${inr(t.ch)}\n`+(t.ex?`Extra charges: ${inr(t.ex)}\n`:'')+(t.dc?`Discount: -${inr(t.dc)}\n`:'')+
+    `Previous balance: ${inr(t.prev)}\nPaid this month: ${inr(t.paid)}\nBalance to pay: ${inr(t.bal)}\n`+
+    (bill.business.upi?`\nUPI: ${bill.business.upi}\n`:'')+`\n${bill.business.footer||'Thank you.'}\n- ${bill.business.name}`}
+function waURL(bill,iv=inv){let n=bill.customer.phone.replace(/\D/g,'');if(n.length===11&&n[0]==='0')n=n.slice(1);if(n.length===10)n='91'+n;
+  if(n.length<11||n.length>15){toast('Invalid phone number');return null}
+  return`https://wa.me/${n}?text=${encodeURIComponent(waMsg(bill,iv))}`}
+function waText(){if(!gate())return;const u=waURL(theBill());if(u)window.open(u,'_blank')}
+async function sharePDF(){
+  if(!gate())return;const bill=theBill(),doc=makePDF(),name=fname(bill);
+  const file=new File([doc.output('blob')],name,{type:'application/pdf'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:name,text:waMsg(bill)});return}
+    catch(e){if(e.name==='AbortError')return}}
+  doc.save(name);const u=waURL(bill);
+  if(u){toast('PDF downloaded. Attach it in WhatsApp manually.');setTimeout(()=>window.open(u,'_blank'),1200)}}
+
+// ===== payments =====
+function fillPaySel(){const old=$('pc').value;
+  $('pc').innerHTML=customers.filter(c=>c.active).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  if(old)$('pc').value=old}
+async function loadPay(){
+  const id=$('pc').value;if(!id){$('pl').innerHTML='';$('pb').textContent='';return}
+  const [b,p]=await Promise.all([db.rpc('prev_balance',{cid:id,before:'9999-12-31'}),
+    db.from('payments').select('*').eq('customer_id',id).order('paid_on',{ascending:false}).limit(50)]);
+  $('pb').innerHTML='<b>Total balance: '+inr(Number(chk(b)))+'</b>';
+  $('pl').innerHTML='<tr><th>Date</th><th>Amount</th><th>Method</th><th></th></tr>'+chk(p).map(x=>
+    `<tr><td>${x.paid_on}</td><td>₹${(+x.amount).toFixed(2)}</td><td>${esc(x.method)}${x.note?' · '+esc(x.note):''}</td>
+    <td><button class="d sm" aria-label="Delete payment" onclick="delPay('${x.id}')">${ic('trash')}</button></td></tr>`).join('');
+}
+let busy=false;
+async function addPay(){
+  const id=$('pc').value,amt=+$('pa').value;
+  if(!id||!(amt>0)||!$('pd').value)return toast('Enter customer, date and amount');
+  if(busy)return;busy=true;
+  try{chk(await db.from('payments').insert({customer_id:id,paid_on:$('pd').value,amount:amt,method:$('pm').value,note:$('pn').value.trim()}));
+    $('pa').value='';$('pn').value='';toast('Payment recorded');await loadPay();if(cur&&cur.id===id)await refreshMoney()}
+  finally{busy=false}}
+async function delPay(id){if(!ask('Delete this payment?'))return;
+  chk(await db.from('payments').delete().eq('id',id));await loadPay();await refreshMoney()}
+
+// ===== backup =====
+async function fetchAll(t,f){let o=[],i=0;
+  for(;;){let q=db.from(t).select('*').order('id').range(i,i+999);if(f)q=f(q);const r=chk(await q);o=o.concat(r);if(r.length<1000)return o;i+=1000}}
+async function backup(kind){
+  let a=null,b=null;
+  if(kind==='weekly'){const d=new Date();b=ymd(d);d.setDate(d.getDate()-6);a=ymd(d)}
+  if(kind==='monthly'){const mv=$('bm').value;if(!mv)return toast('Pick a month');
+    const [y,m]=mv.split('-').map(Number);a=mv+'-01';b=mv+'-'+String(new Date(y,m,0).getDate()).padStart(2,'0')}
+  const rng=col=>a?q=>q.gte(col,a).lte(col,b):null, rngM=col=>kind==='monthly'?rng(col):null;
+  toast('Preparing backup...');
+  const data={app:'Dairy Desk',type:kind,from:a,to:b,exported_at:new Date().toISOString(),settings:{...S,groq_key:undefined},
+    customers:await fetchAll('customers'),milk_entries:await fetchAll('milk_entries',rng('entry_date')),payments:await fetchAll('payments',rng('paid_on')),
+    adjustments:await fetchAll('adjustments',rngM('adj_month')),invoices:await fetchAll('invoices',rngM('bill_month'))};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,1)],{type:'application/json'}));
+  const l=document.createElement('a');l.href=url;l.download=`DairyDesk_Backup_${kind}_${ymd(new Date())}.json`;
+  document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Backup downloaded');
+}
+
+// ===== analytics =====
+Object.assign(BN,{
+'Analytics':'বিশ্লেষণ','Daily':'দৈনিক','Monthly':'মাসিক','Insights':'ইনসাইট','AI advice':'AI পরামর্শ',
+'Litres':'লিটার','Delivered':'দুধ দেওয়া হয়েছে','Missed':'দেওয়া হয়নি','Morning litres':'সকালের লিটার','Evening litres':'সন্ধ্যার লিটার','Cow litres':'গরুর লিটার','Buffalo litres':'মহিষের লিটার',
+'Odd quantities':'অস্বাভাবিক পরিমাণ','Everything is entered.':'সব এন্ট্রি লেখা আছে।','No odd quantities.':'কোনো অস্বাভাবিক পরিমাণ নেই।',
+'Billed':'বিল','Received':'পেয়েছি','Unpaid':'বাকি','Active customers':'চালু গ্রাহক','Daily litres':'দৈনিক লিটার','Litres per month':'মাস অনুযায়ী লিটার','Billed vs received':'বিল বনাম পাওয়া',
+'Cow vs buffalo':'গরু বনাম মহিষ','Cow money':'গরুর টাকা','Buffalo money':'মহিষের টাকা','Payments by method':'পদ্ধতি অনুযায়ী পেমেন্ট','No payments this month.':'এই মাসে কোনো পেমেন্ট নেই।',
+'Discounts and extra charges':'ছাড় ও অতিরিক্ত চার্জ','No discounts or extra charges.':'কোনো ছাড় বা অতিরিক্ত চার্জ নেই।','Month':'মাস',
+'Top customers by litres':'লিটারে সেরা গ্রাহক','Top customers by money':'টাকায় সেরা গ্রাহক','Highest unpaid':'সবচেয়ে বেশি বাকি','Remind':'রিমাইন্ড','Slow payers':'দেরিতে পরিশোধকারী',
+'Late means: the earlier month\'s dues were still not cleared at the end of the month.':'দেরি মানে: আগের মাসের বাকি মাস শেষেও মেটেনি।',
+'Customers losing milk':'যাদের দুধ কমছে','Not billed yet':'এখনও বিল হয়নি','Lock the bill in Register.':'রেজিস্টারে বিল লক করুন।','Customer profile':'গ্রাহকের প্রোফাইল','Balance':'ব্যালান্স','Bill':'বিল','Nobody here.':'কেউ নেই।',
+'Collection rate (last 6 months)':'আদায়ের হার (শেষ ৬ মাস)','Average litres per customer per day':'প্রতি গ্রাহক প্রতি দিনে গড় লিটার','Busiest weekday':'সবচেয়ে ব্যস্ত বার',
+'Estimated profit':'আনুমানিক লাভ','Revenue':'আয়','Cost':'খরচ','Profit':'লাভ','Margin':'মার্জিন','Add your cost per litre in Settings to see profit.':'লাভ দেখতে সেটিংসে প্রতি লিটার খরচ দিন।',
+'Get advice':'পরামর্শ নিন','Weekly summary':'সাপ্তাহিক সারাংশ','Monthly summary':'মাসিক সারাংশ','Ask about my dairy':'আমার ডেয়ারি সম্পর্কে জিজ্ঞাসা করুন','Ask':'জিজ্ঞাসা করুন',
+'Names, phone numbers and addresses are never sent. Customer names become Customer 1, 2, 3 before sending.':'নাম, ফোন নম্বর ও ঠিকানা কখনো পাঠানো হয় না। পাঠানোর আগে নাম বদলে Customer 1, 2, 3 হয়ে যায়।',
+'Thinking...':'ভাবছি...','Loading...':'লোড হচ্ছে...','Type a question':'একটি প্রশ্ন লিখুন','Who should I remind first?':'কাকে আগে রিমাইন্ড করব?',
+'Daily chart by':'দৈনিক চার্ট','Months to show':'কত মাস দেখাবেন','Morning / Evening':'সকাল / সন্ধ্যা','Cow / Buffalo':'গরু / মহিষ','Last 6 months':'শেষ ৬ মাস','Last 12 months':'শেষ ১২ মাস',
+'Cow cost per litre (₹, optional)':'গরুর দুধের খরচ প্রতি লিটার (₹, ঐচ্ছিক)','Buffalo cost per litre (₹, optional)':'মহিষের দুধের খরচ প্রতি লিটার (₹, ঐচ্ছিক)'});
+Object.entries(MB).forEach(([k,v])=>BN[k]=v);Object.entries(WB).forEach(([k,v])=>BN[k]=v);
+RX.push([/^: (.*) L \(usual (.*) L\)$/,m=>`: ${m[1]} L (সাধারণত ${m[2]} L)`],
+ [/^Late in (\d+) of last 6 months$/,m=>`শেষ ৬ মাসের ${m[1]} মাসে দেরি`],[/^(.*) → (.*) L\/day$/,m=>`${m[1]} → ${m[2]} L/দিন`]);
+
+const AN={sub:'day',loaded:null,open:false};let AM=null;
+const pad2=n=>String(n).padStart(2,'0');
+const mStart=(y,m,k)=>ymd(new Date(y,m-1+k,1));
+const mlabel=m=>MONTHS[+m.slice(5,7)-1].slice(0,3);
+const cname=id=>customers.find(c=>c.id===id)?.name||'?';
+const sp=t=>`<span>${t}</span>`;
+const tiles=a=>`<div class="tiles">${a.map(([l,v])=>`<div class="tile"><b>${v}</b><span>${l}</span></div>`).join('')}</div>`;
+const rl=(a,b)=>`<div class="rl"><div>${a}</div><div>${b}</div></div>`;
+const NONE='<p class="muted">Nobody here.</p>';
+const legend=(n,c)=>`<div class="lg">${n.map((x,i)=>`<span><i style="background:${c[i]}"></i>${x}</span>`).join('')}</div>`;
+function bars(items,colors,group){
+  const mx=Math.max(0.0001,...items.map(i=>group?Math.max(...i.v):i.v.reduce((a,b)=>a+b,0)));
+  return`<div class="bc">${items.map(i=>`<div class="bcol" title="${esc(i.t||'')}"><div class="bw">`+
+   (group?i.v.map((x,k)=>`<div class="bar" style="height:${Math.round(x/mx*120)}px;background:${colors[k]}"></div>`).join('')
+    :`<div class="bar st" style="height:${Math.round(i.v.reduce((a,b)=>a+b,0)/mx*120)}px">${i.v.map((x,k)=>`<i style="flex:${x};background:${colors[k]}"></i>`).join('')}</div>`)+
+   `</div><span>${i.l}</span></div>`).join('')}</div>`}
+
+function aSub(s){AN.sub=s;
+  document.querySelectorAll('#aseg button').forEach(b=>b.classList.toggle('on',b.dataset.a===s));
+  ['day','mon','cus','ins','ai'].forEach(x=>$('a-'+x).classList.toggle('hide',x!==s));
+  $('amoCard').classList.toggle('hide',s==='day');
+  if(s==='day')loadDaily();else if(AN.loaded!==$('amo').value)loadAn()}
+function anaOpen(){
+  if(!AN.open){AN.open=true;const t=ymd(new Date());$('adt').value=t;$('amo').value=t.slice(0,7);
+    document.querySelectorAll('#aseg button').forEach(b=>b.onclick=()=>aSub(b.dataset.a))}
+  aSub(AN.sub)}
+
+// ----- daily -----
+function setD(n){const d=new Date($('adt').value+'T00:00:00');d.setDate(d.getDate()+n);$('adt').value=ymd(d);loadDaily()}
+async function loadDaily(){
+  const d=$('adt').value;if(!d)return;
+  const rows=chk(await db.from('milk_entries').select('*').eq('entry_date',d));
+  const by={};rows.forEach(r=>(by[r.customer_id]=by[r.customer_id]||[]).push(r));
+  const T={ml:0,p:0,mor:0,eve:0,cow:0,buf:0};let del=0,missed=0,body='',miss=[],odd=[];
+  const f=v=>v?L(v):'-';
+  customers.filter(c=>c.active||by[c.id]).forEach(c=>{
+    const rs_=by[c.id]||[],x={ml:0,p:0,mor:0,eve:0,cow:0,buf:0};
+    rs_.forEach(r=>{x.ml+=r.ml;x.p+=paise(r.ml,+r.rate);if(r.slot==='morning')x.mor+=r.ml;else x.eve+=r.ml;if(r.milk_type==='buffalo')x.buf+=r.ml;else x.cow+=r.ml;
+      const ref=defFor(c,r.milk_type);
+      if(r.ml>0&&ref>0&&(r.ml>=2*ref||r.ml<=ref/2))odd.push(`<b>${esc(c.name)}</b> — ${sp(SLN[r.slot])} ${sp(TYN[r.milk_type])}: ${L(r.ml)} L (usual ${L(ref)} L)`)});
+    if(c.active){
+      if(x.ml===0)missed++;
+      const m_=[];slotsOf(c).forEach(s=>typesOf(c).forEach(ty=>{if(!rs_.some(r=>r.slot===s&&r.milk_type===ty))m_.push(`${sp(SLN[s])} ${sp(TYN[ty])}`)}));
+      if(m_.length)miss.push(`<b>${esc(c.name)}</b>: ${m_.join(', ')}`)}
+    Object.keys(T).forEach(k=>T[k]+=x[k]);if(x.ml>0)del++;
+    body+=`<tr><td><span class="${x.ml>0?'ok':'ne'}">${ic(x.ml>0?'check':'minus')}</span> ${esc(c.name)}</td><td>${f(x.mor)}</td><td>${f(x.eve)}</td><td>${f(x.cow)}</td><td>${f(x.buf)}</td><td>${x.p?inr(x.p):'-'}</td></tr>`});
+  $('dayOut').innerHTML=
+   `<div class="card">${tiles([['Litres',L(T.ml)+' L'],['Amount',inr(T.p)],['Delivered',del],['Missed',missed],['Morning litres',L(T.mor)],['Evening litres',L(T.eve)],['Cow litres',L(T.cow)],['Buffalo litres',L(T.buf)]])}</div>`+
+   `<div class="card"><div class="tw"><table><tr><th>Customer</th><th>Morning</th><th>Evening</th><th>Cow</th><th>Buffalo</th><th>Amount</th></tr>${body}</table></div></div>`+
+   `<div class="card"><h3>${ic('alert')}Not entered</h3>${miss.length?miss.map(x=>`<div class="rl"><div>${x}</div></div>`).join(''):'<p class="muted">Everything is entered.</p>'}</div>`+
+   `<div class="card"><h3>${ic('alert')}Odd quantities</h3>${odd.length?odd.map(x=>`<div class="rl"><div>${x}</div></div>`).join(''):'<p class="muted">No odd quantities.</p>'}</div>`;
+}
+
+// ----- monthly data -----
+async function loadAn(){
+  const mo=$('amo').value;if(!mo)return;const [y,m]=mo.split('-').map(Number);
+  const first=mo+'-01',last=ymd(new Date(y,m,0)),f12=mStart(y,m,-11),t=new Date(),d90=ymd(new Date(t.getFullYear(),t.getMonth(),t.getDate()-89));
+  ['monOut','cusOut','insOut'].forEach(i=>$(i).innerHTML='<p class="muted">Loading...</p>');
+  const [cm,mm,dl,dw,me,iv]=await Promise.all([
+    db.rpc('an_cust_month',{from_m:f12,to_m:first}),db.rpc('an_month',{from_d:f12,to_d:last}),
+    db.rpc('an_daily',{from_d:first,to_d:last}),db.rpc('an_daily',{from_d:d90,to_d:ymd(t)}),
+    db.rpc('an_methods',{from_d:f12,to_d:last}),db.from('invoices').select('customer_id').eq('bill_month',first).eq('status','locked')]);
+  const A={mo,first,y,m,months:Array.from({length:12},(_,i)=>mStart(y,m,-11+i)),cm:chk(cm),mm:chk(mm),dl:chk(dl),dw:chk(dw),me:chk(me),locked:new Set(chk(iv).map(r=>r.customer_id))};
+  prep(A);derive(A);AM=A;AN.loaded=mo;renderMon();renderCus();renderIns();
+}
+function prep(A){
+  A.byC={};A.cm.rows.forEach(r=>(A.byC[r.cid]=A.byC[r.cid]||[]).push(r));
+  Object.entries(A.byC).forEach(([cid,rows])=>{let bal=Number(A.cm.opening[cid]||0);
+    rows.sort((p,q)=>p.m<q.m?-1:1).forEach(r=>{r.bill=r.ch+r.ex-r.dc;bal+=r.bill-r.paid;r.bal=bal})});
+  A.mon=A.months.map(mo=>{const o={m:mo,ml:0,cow:0,buf:0,mor:0,eve:0,pc:0,pb:0,bill:0,paid:0,ex:0,dc:0};
+    A.mm.filter(x=>x.m===mo).forEach(x=>{o.ml+=x.ml;if(x.milk_type==='buffalo'){o.buf+=x.ml;o.pb+=x.p}else{o.cow+=x.ml;o.pc+=x.p}if(x.slot==='morning')o.mor+=x.ml;else o.eve+=x.ml});
+    A.cm.rows.filter(r=>r.m===mo).forEach(r=>{o.bill+=r.bill;o.paid+=r.paid;o.ex+=r.ex;o.dc+=r.dc});return o});
+  A.cur=A.mon[11];A.unpaid=0;Object.values(A.byC).forEach(rows=>{A.unpaid+=rows[rows.length-1].bal})}
+function derive(A){
+  const today=new Date(),isCur=A.mo===ymd(today).slice(0,7),dim=new Date(A.y,A.m,0).getDate(),days=isCur?Math.max(1,today.getDate()-1):dim,pdim=new Date(A.y,A.m-1,0).getDate();
+  const rows=Object.entries(A.byC).map(([cid,r])=>({cid,r,cur:r[11],prev:r[10]})),late=x=>x.r.slice(6).filter(q=>q.bill>0&&q.bal-q.bill>100).length;
+  const D={days,rows};
+  D.topL=rows.filter(x=>x.cur.ml>0).sort((a,b)=>b.cur.ml-a.cur.ml).slice(0,5);
+  D.topM=rows.filter(x=>x.cur.bill>0).sort((a,b)=>b.cur.bill-a.cur.bill).slice(0,5);
+  D.unpaid=rows.filter(x=>x.cur.bal>0).sort((a,b)=>b.cur.bal-a.cur.bal).slice(0,10).map(x=>({...x,late:late(x)}));
+  D.slow=rows.map(x=>({...x,late:late(x)})).filter(x=>x.late>=3).sort((a,b)=>b.late-a.late);
+  D.lose=rows.map(x=>{const a=x.prev.ml/1000/pdim,b=x.cur.ml/1000/days;return{...x,a,b,drop:a>0?(a-b)/a*100:0}}).filter(x=>x.a>=0.25&&x.drop>=20).sort((a,b)=>b.drop-a.drop);
+  D.nb=rows.filter(x=>x.cur.ch>0&&!A.locked.has(x.cid));
+  const w={};A.dw.forEach(q=>{const k=new Date(q.d+'T00:00:00').getDay(),o=w[k]||(w[k]={ml:0,ds:new Set()});o.ml+=q.ml;o.ds.add(q.d)});
+  D.wd=WD.map((n,k)=>({n,v:w[k]?w[k].ml/1000/w[k].ds.size:0}));
+  const six=A.mon.slice(6),bb=six.reduce((s,x)=>s+x.bill,0),pp=six.reduce((s,x)=>s+x.paid,0);D.coll=bb>0?pp/bb*100:null;
+  const nd=rows.filter(x=>x.cur.ml>0).length;D.avgLpd=nd?A.cur.ml/1000/nd/days:0;
+  const cc=S.cost_cow,cb=S.cost_buffalo;
+  D.profit=(cc!=null||cb!=null)?{rev:A.cur.bill,cost:Math.round(A.cur.cow/1000*(cc||0)*100+A.cur.buf/1000*(cb||0)*100)}:null;
+  A.d=D}
+
+// ----- monthly screen -----
+function renderMon(){
+  const A=AM;if(!A)return;const c=A.cur,span=+$('mspan').value,mode=$('dmode').value,n=new Date(A.y,A.m,0).getDate(),G='#1f7a48',Y='#9aa5b1';
+  const names=mode==='time'?['Morning','Evening']:['Cow','Buffalo'],di=[];
+  for(let d=1;d<=n;d++){const ds=`${A.mo}-${pad2(d)}`;let a=0,b=0;
+    A.dl.filter(r=>r.d===ds).forEach(r=>{if(mode==='time'){if(r.slot==='morning')a+=r.ml;else b+=r.ml}else{if(r.milk_type==='buffalo')b+=r.ml;else a+=r.ml}});
+    di.push({l:(d===1||d%5===0)?d:'',v:[a/1000,b/1000],t:`${d}: ${L(a+b)} L`})}
+  const ms=A.mon.slice(12-span),mt={};A.me.filter(x=>x.m===A.first).forEach(x=>mt[x.method]=(mt[x.method]||0)+x.p);
+  const ex=ms.filter(x=>x.ex||x.dc);
+  $('monOut').innerHTML=
+   `<div class="card">${tiles([['Litres',L(c.ml)+' L'],['Billed',inr(c.bill)],['Received',inr(c.paid)],['Unpaid',inr(A.unpaid)],['Active customers',customers.filter(x=>x.active).length]])}</div>`+
+   `<div class="card"><h3>${ic('chart')}Daily litres</h3>${bars(di,[G,Y])}${legend(names,[G,Y])}</div>`+
+   `<div class="card"><h3>${ic('chart')}Litres per month</h3>${bars(ms.map(x=>({l:mlabel(x.m),v:[x.ml/1000],t:L(x.ml)+' L'})),[G])}</div>`+
+   `<div class="card"><h3>${ic('chart')}Billed vs received</h3>${bars(ms.map(x=>({l:mlabel(x.m),v:[x.bill/100,x.paid/100],t:inr(x.bill)+' / '+inr(x.paid)})),[Y,G],true)}${legend(['Billed','Received'],[Y,G])}</div>`+
+   `<div class="card"><h3>${ic('drop')}Cow vs buffalo</h3>${tiles([['Cow litres',L(c.cow)+' L'],['Buffalo litres',L(c.buf)+' L'],['Cow money',inr(c.pc)],['Buffalo money',inr(c.pb)]])}</div>`+
+   `<div class="card"><h3>${ic('wallet')}Payments by method</h3>${Object.keys(mt).length?Object.entries(mt).map(([k,v])=>rl(sp(k),inr(v))).join(''):'<p class="muted">No payments this month.</p>'}</div>`+
+   `<div class="card"><h3>${ic('plus')}Discounts and extra charges</h3>${ex.length?`<div class="tw"><table><tr><th>Month</th><th>Extra charges</th><th>Discount</th></tr>${ex.map(x=>`<tr><td>${sp(MONTHS[+x.m.slice(5,7)-1])} ${x.m.slice(0,4)}</td><td>${inr(x.ex)}</td><td>${inr(x.dc)}</td></tr>`).join('')}</table></div>`:'<p class="muted">No discounts or extra charges.</p>'}</div>`;
+}
+
+// ----- customers screen -----
+function remind(id){const c=customers.find(x=>x.id===id),r=AM.byC[id][11];
+  const u=waLink(c.phone,`Hello ${c.name},\n\nA gentle reminder from ${S.business_name}: your milk bill balance of ${inr(r.bal)} is pending.`+(S.upi_id?`\nUPI: ${S.upi_id}`:'')+`\n\nThank you.`);
+  if(u)window.open(u,'_blank')}
+function waLink(phone,msg){let n=phone.replace(/\D/g,'');if(n.length===11&&n[0]==='0')n=n.slice(1);if(n.length===10)n='91'+n;
+  if(n.length<11||n.length>15){toast('Invalid phone number');return null}return`https://wa.me/${n}?text=${encodeURIComponent(msg)}`}
+function renderCus(){
+  const A=AM,D=A.d,nm=x=>esc(cname(x.cid));
+  $('cusOut').innerHTML=
+   `<div class="card"><h3>${ic('users')}Top customers by litres</h3>${D.topL.map((x,i)=>rl(`${i+1}. ${nm(x)}`,L(x.cur.ml)+' L')).join('')||NONE}</div>`+
+   `<div class="card"><h3>${ic('wallet')}Top customers by money</h3>${D.topM.map((x,i)=>rl(`${i+1}. ${nm(x)}`,inr(x.cur.bill))).join('')||NONE}</div>`+
+   `<div class="card"><h3>${ic('alert')}Highest unpaid</h3>${D.unpaid.map(x=>rl(`<b>${nm(x)}</b>`,`${inr(x.cur.bal)} <button class="sm" onclick="remind('${x.cid}')">${ic('chat')}Remind</button>`)).join('')||NONE}</div>`+
+   `<div class="card"><h3>${ic('alert')}Slow payers</h3><p class="muted">Late means: the earlier month's dues were still not cleared at the end of the month.</p>${D.slow.map(x=>rl(`<b>${nm(x)}</b><br><span class="muted">Late in ${x.late} of last 6 months</span>`,inr(x.cur.bal))).join('')||NONE}</div>`+
+   `<div class="card"><h3>${ic('drop')}Customers losing milk</h3>${D.lose.map(x=>rl(`<b>${nm(x)}</b><br><span class="muted">${x.a.toFixed(2)} → ${x.b.toFixed(2)} L/day</span>`,'-'+Math.round(x.drop)+'%')).join('')||NONE}</div>`+
+   `<div class="card"><h3>${ic('lock')}Not billed yet</h3>${D.nb.length?'<p class="muted">Lock the bill in Register.</p>':''}${D.nb.map(x=>rl(nm(x),inr(x.cur.bill))).join('')||NONE}</div>`+
+   `<div class="card"><h3>${ic('users')}Customer profile</h3><select id="pcu" onchange="renderProf()"><option value="">Select customer</option>${customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select><div id="profOut" style="margin-top:8px"></div></div>`;
+}
+async function renderProf(){
+  const id=$('pcu').value,out=$('profOut');if(!id||!AM){out.innerHTML='';return}
+  const rows=(AM.byC[id]||[]).slice(6);
+  const iv=chk(await db.from('invoices').select('invoice_no,bill_month').eq('customer_id',id).eq('status','locked').gte('bill_month',AM.months[6]));
+  const no={};iv.forEach(x=>no[x.bill_month]=x.invoice_no);
+  out.innerHTML=`<div class="tw"><table><tr><th>Month</th><th>Litres</th><th>Billed</th><th>Paid</th><th>Balance</th><th>Bill</th></tr>`+
+   rows.map(r=>`<tr><td>${sp(mlabel(r.m))} ${r.m.slice(2,4)}</td><td>${L(r.ml)}</td><td>${inr(r.bill)}</td><td>${inr(r.paid)}</td><td>${inr(r.bal)}</td><td>${no[r.m]||'-'}</td></tr>`).join('')+'</table></div>'}
+
+// ----- insights screen -----
+function renderIns(){
+  const A=AM,D=A.d,mx=Math.max(0.0001,...D.wd.map(x=>x.v)),best=D.wd.reduce((a,b)=>b.v>a.v?b:a,D.wd[0]),p=D.profit;
+  $('insOut').innerHTML=
+   `<div class="card">${tiles([['Collection rate (last 6 months)',D.coll==null?'-':D.coll.toFixed(0)+'%'],['Average litres per customer per day',D.avgLpd.toFixed(2)+' L']])}</div>`+
+   `<div class="card"><h3>${ic('chart')}Busiest weekday</h3>${bars(D.wd.map(x=>({l:x.n,v:[x.v],t:x.v.toFixed(1)+' L'})),['#1f7a48'])}<p>${best.v>0?`<b>${best.n}</b> · ${best.v.toFixed(1)} L`:''}</p></div>`+
+   `<div class="card"><h3>${ic('wallet')}Estimated profit</h3>${p?tiles([['Revenue',inr(p.rev)],['Cost',inr(p.cost)],['Profit',inr(p.rev-p.cost)],['Margin',p.rev>0?((p.rev-p.cost)/p.rev*100).toFixed(0)+'%':'-']]):'<p class="muted">Add your cost per litre in Settings to see profit.</p>'}</div>`;
+}
+
+// ----- AI (Groq through a Supabase Edge Function) -----
+const lab=id=>'Customer '+(customers.findIndex(c=>c.id===id)+1);
+function scrub(q){let t=q;customers.forEach((c,i)=>{const nm=c.name.trim();if(nm.length>1)t=t.replace(new RegExp(nm.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),'Customer '+(i+1))});return t.replace(/\d{7,}/g,'[number]')}
+function aiCtx(){
+  const A=AM,c=A.cur,D=A.d,R=p=>Math.round(p/100),Lt=ml=>+(ml/1000).toFixed(1);
+  return{month:MONTHS[A.m-1]+' '+A.y,
+    totals:{litres:Lt(c.ml),billed_inr:R(c.bill),received_inr:R(c.paid),total_unpaid_inr:R(A.unpaid),active_customers:customers.filter(x=>x.active).length},
+    milk:{cow_litres:Lt(c.cow),buffalo_litres:Lt(c.buf),cow_money_inr:R(c.pc),buffalo_money_inr:R(c.pb),morning_litres:Lt(c.mor),evening_litres:Lt(c.eve)},
+    last_6_months:A.mon.slice(6).map(x=>({month:x.m.slice(0,7),litres:Lt(x.ml),billed_inr:R(x.bill),received_inr:R(x.paid)})),
+    collection_rate_percent:D.coll==null?null:Math.round(D.coll),
+    top_customers_by_litres:D.topL.map(x=>({customer:lab(x.cid),litres:Lt(x.cur.ml)})),
+    highest_unpaid:D.unpaid.map(x=>({customer:lab(x.cid),unpaid_inr:R(x.cur.bal),late_months_of_last_6:x.late})),
+    losing_milk:D.lose.slice(0,8).map(x=>({customer:lab(x.cid),was_litres_per_day:+x.a.toFixed(2),now_litres_per_day:+x.b.toFixed(2),drop_percent:Math.round(x.drop)})),
+    not_billed_yet:D.nb.map(x=>({customer:lab(x.cid),amount_inr:R(x.cur.bill)})),
+    weekday_average_litres:Object.fromEntries(D.wd.map(x=>[x.n,+x.v.toFixed(1)])),
+    avg_litres_per_customer_per_day:+D.avgLpd.toFixed(2),
+    estimated_profit_inr:D.profit?R(D.profit.rev-D.profit.cost):null,
+    note:'Current month may be unfinished; per-day averages use completed days.'}}
+async function weekCtx(){
+  const t=new Date(),dd=k=>ymd(new Date(t.getFullYear(),t.getMonth(),t.getDate()-k)),d0=dd(13),d1=dd(0);
+  const [dl,py]=await Promise.all([db.rpc('an_daily',{from_d:d0,to_d:d1}),db.from('payments').select('amount,paid_on').gte('paid_on',d0).lte('paid_on',d1)]);
+  const rows=chk(dl),pay=chk(py),mk=ds=>{const s=new Set(ds),o={litres:0,cow:0,buffalo:0,morning:0,evening:0};
+    rows.filter(r=>s.has(r.d)).forEach(r=>{o.litres+=r.ml;if(r.milk_type==='buffalo')o.buffalo+=r.ml;else o.cow+=r.ml;if(r.slot==='morning')o.morning+=r.ml;else o.evening+=r.ml});
+    const Lt=v=>+(v/1000).toFixed(1);
+    return{litres:Lt(o.litres),cow_litres:Lt(o.cow),buffalo_litres:Lt(o.buffalo),morning_litres:Lt(o.morning),evening_litres:Lt(o.evening),payments_received_inr:Math.round(pay.filter(p=>s.has(p.paid_on)).reduce((a,p)=>a+(+p.amount),0))}};
+  const last=Array.from({length:7},(_,i)=>dd(6-i)),prev=Array.from({length:7},(_,i)=>dd(13-i));
+  return{last_7_days:mk(last),previous_7_days:mk(prev),daily_litres_last_7_days:last.map(d=>({date:d,litres:+(rows.filter(r=>r.d===d).reduce((a,r)=>a+r.ml,0)/1000).toFixed(1)}))}}
+function fmtAI(t){
+  const names={};customers.forEach((c,i)=>names['Customer '+(i+1)]=c.name);
+  return esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/Customer (\d+)/g,m=>names[m]?`<b>${esc(names[m])}</b>`:m)
+    .split('\n').map(l=>/^\s*[-*•]\s+/.test(l)?'• '+l.replace(/^\s*[-*•]\s+/,''):l).join('<br>')}
+Object.assign(BN,{'Groq API key (optional, for AI advice)':'Groq API কী (ঐচ্ছিক, AI পরামর্শের জন্য)','Groq model (optional)':'Groq মডেল (ঐচ্ছিক)',
+'Saved in your database, not in this file. Anyone who can log in can use it. Leave empty to use the Supabase function instead.':'এটি আপনার ডেটাবেসে সেভ হয়, এই ফাইলে নয়। যে লগ ইন করতে পারে সে ব্যবহার করতে পারবে। খালি রাখলে Supabase ফাংশন ব্যবহার হবে।'});
+const AI_TASKS={
+  advice:'Give 5 to 7 short, practical recommendations for the owner, most important first. Each one: what to do and why, using the numbers given.',
+  weekly:'Write a short weekly summary (at most 8 lines): compare the last 7 days with the previous 7 days, mention anything unusual, end with one suggestion.',
+  monthly:'Write a short monthly summary (at most 10 lines): milk supplied, money billed and received, what is unpaid, what changed, end with one suggestion.',
+  ask:"Answer the owner's question using only the data given. If the data cannot answer it, say so plainly."};
+async function groqDirect(mode,lang,question,data){
+  const system='You are a helpful business assistant for a small dairy in India that sells cow and buffalo milk. Use ONLY the numbers in the data. Never invent or estimate numbers. '+
+    'Customers appear as "Customer 1", "Customer 2" and so on: always write them exactly like that. Amounts are in Indian rupees: write them like ₹1,200. Use simple, short sentences and bullet points starting with "- ". '+
+    (lang==='bn'?'Reply in Bengali (keep "Customer N" and numbers as they are). ':'Reply in English. ')+'Do not give legal, tax or medical advice.';
+  const msg=`Task: ${AI_TASKS[mode]}\n`+(mode==='ask'?`Owner's question: ${String(question||'').slice(0,500)}\n`:'')+`Data (JSON):\n${JSON.stringify(data)}`;
+  let r;
+  try{r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+S.groq_key,'Content-Type':'application/json'},
+    body:JSON.stringify({model:S.groq_model||'openai/gpt-oss-120b',temperature:0.3,max_completion_tokens:1200,messages:[{role:'system',content:system},{role:'user',content:msg}]})})}
+  catch(e){throw new Error('Could not reach Groq from the browser (it may block this page). Remove the key in Settings to use the Supabase function instead')}
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j?.error?.message||'Groq returned an error');
+  return j.choices?.[0]?.message?.content||''}
+async function runAI(mode,question){
+  const out=$('aiOut');out.innerHTML='<p class="muted">Thinking...</p>';
+  try{
+    if(!AM||AN.loaded!==$('amo').value)await loadAn();
+    const data=mode==='weekly'?await weekCtx():aiCtx();
+    const q=question?scrub(question):'';let text;
+    if(S.groq_key)text=await groqDirect(mode,LANG,q,data);
+    else{
+      const r=await db.functions.invoke('groq-advice',{body:{mode,lang:LANG,question:q,data}});
+      if(r.error){let msg=r.error.message;try{const j=await r.error.context.json();if(j.error)msg=j.error}catch(e){}throw new Error(msg)}
+      text=r.data.text||''}
+    out.innerHTML='<div class="card aiBox">'+fmtAI(text)+'</div>';
+  }catch(e){out.innerHTML=`<div class="card"><p class="muted">AI is not available: ${esc(e.message)}. Check the Groq key in Settings (or the groq-advice function in Supabase).</p></div>`}}
+function askAI(){const q=$('aiQ').value.trim();if(!q)return toast('Type a question');runAI('ask',q)}
+
+
+// ===== NEW: Today screen, quick entry, bill run, autosave =====
+Object.assign(BN,{
+'Today':'আজ','Discard':'ফেলে দিন','Discard all unsaved entries?':'সেভ না হওয়া সব এন্ট্রি ফেলে দেবেন?','Unsaved entries are not in the database yet. Save them or discard them before running bills.':'সেভ না হওয়া এন্ট্রি এখনও ডেটাবেসে নেই। বিল রানের আগে সেভ করুন বা ফেলে দিন।','Filled. Tap Save all to store them':'ভরা হয়েছে। রাখতে সব সেভ করুন চাপুন','No internet. Your entries are still here, tap Save all when online':'ইন্টারনেট নেই। এন্ট্রি এখানেই আছে, নেট এলে সব সেভ করুন চাপুন','Still saving, try again in a moment':'সেভ হচ্ছে, একটু পরে আবার চেষ্টা করুন','Money':'টাকা','Bill run':'বিল রান','Saving…':'সেভ হচ্ছে…','Not done':'বাকি',
+'All delivered as usual':'সবাইকে সাধারণ পরিমাণে দেওয়া হয়েছে','No milk':'দুধ নেই','Confirm usual':'সাধারণ পরিমাণ নিশ্চিত করুন',
+'Show only customers not done':'শুধু যাদের হয়নি তাদের দেখান','All customers are done.':'সব গ্রাহকের হয়ে গেছে।','Bill locked':'বিল লক করা',
+'Quick entry':'দ্রুত এন্ট্রি','Preview':'প্রিভিউ','Apply':'প্রয়োগ করুন','Type or say something first':'আগে কিছু লিখুন বা বলুন','Not found':'পাওয়া যায়নি',
+'Names are matched on your phone and are never sent anywhere. Voice typing uses your browser\'s speech service.':'নাম আপনার ফোনেই মেলানো হয়, কোথাও পাঠানো হয় না। ভয়েস টাইপিংয়ে আপনার ব্রাউজারের স্পিচ সার্ভিস ব্যবহার হয়।',
+'Voice typing is not available here. Use the microphone on your keyboard.':'এখানে ভয়েস টাইপিং নেই। কিবোর্ডের মাইক্রোফোন ব্যবহার করুন।','Usual amount':'সাধারণ পরিমাণ','Litres':'লিটার',
+'Locks every bill that has no missing days, then sends them one by one.':'যে বিলে কোনো দিন বাকি নেই সেগুলো লক করে, তারপর একে একে পাঠায়।',
+'Ready':'তৈরি','Missing':'বাকি আছে','Locked':'লক করা','Lock all ready bills':'সব তৈরি বিল লক করুন','Fill usual':'সাধারণ ভরুন','No milk this month':'এই মাসে দুধ নেই',
+'Send bills':'বিল পাঠান','Skip':'বাদ দিন','Start over':'আবার শুরু','All bills sent.':'সব বিল পাঠানো হয়েছে।','Sent':'পাঠানো হয়েছে','Send':'পাঠান',
+'Pick WhatsApp in the share sheet, then the customer\'s chat.':'শেয়ার শিটে হোয়াটসঅ্যাপ বাছুন, তারপর গ্রাহকের চ্যাট।','Nothing to lock.':'লক করার মতো কিছু নেই।','Bills locked':'বিল লক হয়েছে'});
+RX.push([/^Offline · (\d+) kept on phone$/,m=>`অফলাইন · ${m[1]}টি ফোনে রাখা আছে`],
+[/^(\d+) of (\d+) customers done · (.*) L$/,m=>`${m[2]} জনের মধ্যে ${m[1]} জনের হয়েছে · ${m[3]} L`],
+[/^Fill (\d+) entries with the usual amount\?$/,m=>`${m[1]}টি এন্ট্রি সাধারণ পরিমাণে ভরবেন?`],
+[/^(\d+) entries set$/,m=>`${m[1]}টি এন্ট্রি বসানো হয়েছে`],[/^(\d+) entries set, (\d+) skipped$/,m=>`${m[1]}টি বসানো হয়েছে, ${m[2]}টি বাদ`],
+[/^(\d+) entries missing$/,m=>`${m[1]}টি এন্ট্রি বাকি`],[/^Sent (\d+) of (\d+)$/,m=>`${m[2]}টির মধ্যে ${m[1]}টি পাঠানো হয়েছে`],
+[/^Send next: (.*)$/,m=>`পরেরটি পাঠান: ${m[1]}`],[/^Lock all ready bills \((\d+)\)$/,m=>`সব তৈরি বিল লক করুন (${m[1]})`],
+[/^Fill (\d+) missing entries for (.*) with the usual amount\?$/,m=>`${m[2]}-এর ${m[1]}টি বাকি এন্ট্রি সাধারণ পরিমাণে ভরবেন?`],
+[/^Lock (\d+) bills\? .*$/,m=>`${m[1]}টি বিল লক করবেন? লক করার পর পরিমাণ ও ছাড়/চার্জ বদলানো যাবে না।`],
+[/^(\d+) bills locked$/,m=>`${m[1]}টি বিল লক হয়েছে`],[/^Wait: (.*)$/,m=>`অপেক্ষা: ${m[1]}`]);
+
+// ----- autosave queue (works offline; kept on the phone until it can save) -----
+const Q={m:new Map(),t:null,busy:false,off:false};
+const qk=r=>`${r.customer_id}|${r.entry_date}|${r.slot}|${r.milk_type}`;
+try{JSON.parse(localStorage.getItem('dd_q')||'[]').forEach(r=>Q.m.set(qk(r),r))}catch(e){}
+const qPersist=()=>{try{localStorage.setItem('dd_q',JSON.stringify([...Q.m.values()]))}catch(e){}};
+function svst(){const el=$('svst'),n=Q.m.size;
+  if(el){el.className='chip '+(Q.busy?'busy':Q.off?'off':n?'busy':'ok');
+    el.textContent=Q.busy?'Saving…':Q.off?`Offline · ${n} kept on phone`:n?`${n} unsaved`:'Saved ✓'}
+  const sb=$('saveBar');if(sb){sb.style.display=n?'flex':'none';$('sbn').textContent=`${n} unsaved`}}
+// MANUAL SAVE: edits are only staged here (and kept on the phone). Nothing is written to Supabase until Save all is tapped.
+function qSave(rec){rec.updated_at=new Date().toISOString();Q.m.set(qk(rec),rec);qPersist();svst()}
+const isNet=e=>!navigator.onLine||/fetch|network|load failed/i.test(String(e&&e.message||e));
+async function saveAll(){
+  if(Q.busy)return false;
+  if(!Q.m.size){toast('Nothing to save');return true}
+  Q.busy=true;Q.off=false;svst();
+  const batch=[...Q.m.entries()];let saved=0,bad=0,last='';
+  try{
+    const r=await db.from('milk_entries').upsert(batch.map(([,v])=>v),{onConflict:CONF});
+    if(r.error)throw r.error;
+    batch.forEach(([k,v])=>{if(Q.m.get(k)===v){Q.m.delete(k);qDone(v)}});saved=batch.length;
+  }catch(e){
+    if(isNet(e)){Q.off=true;toast('No internet. Your entries are still here, tap Save all when online')}
+    else{ // a real error (for example a locked bill): save what can be saved, keep the rest staged
+      for(const [k,v] of batch){
+        const r=await db.from('milk_entries').upsert(v,{onConflict:CONF});
+        if(r.error){if(isNet(r.error)){Q.off=true;break}bad++;last=r.error.message}
+        else{saved++;if(Q.m.get(k)===v){Q.m.delete(k);qDone(v)}}}
+      if(bad)toast('Error: '+last)}}
+  qPersist();Q.busy=false;svst();
+  if(saved&&!bad&&!Q.off)toast(`${saved} entries saved`);
+  return !bad&&!Q.off&&!Q.m.size}
+function discardAll(){
+  if(!Q.m.size)return;if(!ask('Discard all unsaved entries?'))return;
+  Q.m.clear();qPersist();svst();
+  if(cur)loadReg();if(TD.open)todayLoad();if(BR.mo)brLoad()}
+window.addEventListener('beforeunload',e=>{if(Q.m.size){e.preventDefault();e.returnValue=''}});
+const stHtml=e=>!e?'<span class="ne">Not entered</span>':e.dirty?'<span class="un">Unsaved</span>':'<span class="ok">Saved</span>';
+const tdPend=new Set();
+function qDone(v){
+  const k=v.entry_date+'|'+v.slot+'|'+v.milk_type;
+  if(cur&&cur.id===v.customer_id&&entries[k]&&entries[k].ml===v.ml){entries[k].saved=true;entries[k].dirty=false;
+    const el=document.getElementById('st_'+k);if(el)el.innerHTML=stHtml(entries[k])}
+  const tk=tdKey(v.customer_id,v.slot,v.milk_type);
+  if(TD.date===v.entry_date&&TD.e[tk]&&TD.e[tk].ml===v.ml){TD.e[tk].saved=true;TD.e[tk].dirty=false;tdPend.add(v.customer_id);
+    clearTimeout(tdPend.t);tdPend.t=setTimeout(()=>{const a=[...tdPend];tdPend.clear();a.forEach(tdRefresh)},60)}}
+
+// ----- Today screen -----
+const TD={date:'',e:{},locked:new Set(),open:false,tk:0};
+const custById=id=>customers.find(c=>c.id===id);
+const tdKey=(cid,s,ty)=>`${cid}|${s}|${ty}`;
+const tdRows=c=>{const o=[];SL.forEach(s=>TYS.forEach(ty=>{if((slotsOf(c).includes(s)&&typesOf(c).includes(ty))||TD.e[tdKey(c.id,s,ty)])o.push([s,ty])}));return o};
+async function todayOpen(){if(!TD.open){TD.open=true;$('tdd').value=ymd(new Date())}await todayLoad()}
+function tdSetDate(n){if(n){const d=new Date($('tdd').value+'T00:00:00');d.setDate(d.getDate()+n);$('tdd').value=ymd(d)}todayLoad()}
+async function todayLoad(){
+  const d=$('tdd').value;if(!d)return;const tk=++TD.tk,first=d.slice(0,7)+'-01';
+  const [e,iv]=await Promise.all([db.from('milk_entries').select('*').eq('entry_date',d),db.from('invoices').select('customer_id').eq('bill_month',first).eq('status','locked')]);
+  if(tk!==TD.tk)return;
+  TD.date=d;TD.e={};chk(e).forEach(r=>TD.e[tdKey(r.customer_id,r.slot,r.milk_type)]={ml:r.ml,rate:+r.rate,saved:true,dirty:false});
+  Q.m.forEach(v=>{if(v.entry_date===d)TD.e[tdKey(v.customer_id,v.slot,v.milk_type)]={ml:v.ml,rate:+v.rate,saved:false,dirty:true}});
+  TD.locked=new Set(chk(iv).map(r=>r.customer_id));todayRender()}
+const tdDone=c=>tdRows(c).every(([s,ty])=>TD.e[tdKey(c.id,s,ty)]);
+function tdSum(){const list=customers.filter(c=>c.active);let ml=0;
+  list.forEach(c=>tdRows(c).forEach(([s,ty])=>{const e=TD.e[tdKey(c.id,s,ty)];if(e)ml+=e.ml}));
+  $('tdSum').textContent=`${list.filter(tdDone).length} of ${list.length} customers done · ${L(ml)} L`}
+function tdCard(c){
+  const rows=tdRows(c),lock=TD.locked.has(c.id),dis=lock?' disabled':'';
+  return `<div class="card tdc" id="tc-${c.id}"><div class="dh"><div class="dt">${esc(c.name)}${tdDone(c)?` <span class="ok">${ic('check')}</span>`:''}</div>`+
+   (lock?`<span class="muted">${ic('lock')}Bill locked</span>`:`<button class="sm" onclick="tdNone('${c.id}')">No milk</button>`)+'</div>'+
+   rows.map(([s,ty])=>{const e=TD.e[tdKey(c.id,s,ty)],a=`'${c.id}','${s}','${ty}'`;
+     const st=!e?`<button class="p s"${dis} aria-label="Confirm usual" onclick="tdUsual(${a})">${ic('check')}</button>`:e.dirty?'<span class="un" aria-label="Unsaved">●</span>':`<span class="ok">${ic('check')}</span>`;
+     return `<div class="slot"><div class="sl"><b>${ic(s==='morning'?'sun':'moon')}${SLN[s]}</b><span class="ty">${TYN[ty]}</span></div>
+      <button class="s"${dis} aria-label="Minus 250 ml" onclick="tdAdj(${a},-${STEP})">${ic('minus')}</button>
+      <input type="number" min="0" step="50" inputmode="numeric"${dis} value="${e?e.ml:''}" placeholder="${defFor(c,ty)}" onchange="tdInp(${a},this.value)">
+      <button class="s"${dis} aria-label="Plus 250 ml" onclick="tdAdj(${a},${STEP})">${ic('plus')}</button><div class="tst">${st}</div></div>`}).join('')+'</div>'}
+function todayRender(){
+  const only=$('tdOnly').checked,list=customers.filter(c=>c.active),h=list.filter(c=>!(only&&tdDone(c))).map(tdCard).join('');
+  $('tdList').innerHTML=h||'<p class="muted">All customers are done.</p>';tdSum()}
+function tdRefresh(cid){const c=custById(cid),el=$('tc-'+cid);
+  if($('tdOnly').checked&&tdDone(c)){todayRender();return}
+  if(el)el.outerHTML=tdCard(c);tdSum()}
+function tdSet(c,s,ty,ml){
+  if(TD.locked.has(c.id))return false;
+  const k=tdKey(c.id,s,ty),old=TD.e[k],rate=old?old.rate:priceFor(c,ty);
+  TD.e[k]={ml,rate,saved:false,dirty:true};
+  qSave({customer_id:c.id,entry_date:TD.date,slot:s,milk_type:ty,ml,rate});return true}
+function tdAdj(cid,s,ty,d){const c=custById(cid),o=TD.e[tdKey(cid,s,ty)];tdSet(c,s,ty,Math.max(0,(o?o.ml:defFor(c,ty))+d));tdRefresh(cid)}
+function tdInp(cid,s,ty,v){v=Math.round(+v);if(!(v>=0))return toast('Enter a valid quantity');tdSet(custById(cid),s,ty,v);tdRefresh(cid)}
+function tdUsual(cid,s,ty){const c=custById(cid);tdSet(c,s,ty,defFor(c,ty));tdRefresh(cid)}
+function tdNone(cid){const c=custById(cid);tdRows(c).forEach(([s,ty])=>tdSet(c,s,ty,0));tdRefresh(cid)}
+function tdAll(){
+  const todo=[];customers.filter(c=>c.active&&!TD.locked.has(c.id)).forEach(c=>tdRows(c).forEach(([s,ty])=>{if(!TD.e[tdKey(c.id,s,ty)])todo.push([c,s,ty])}));
+  if(!todo.length)return toast('Nothing to save');
+  if(!ask(`Fill ${todo.length} entries with the usual amount?`))return;
+  todo.forEach(([c,s,ty])=>tdSet(c,s,ty,defFor(c,ty)));todayRender()}
+
+// ----- quick entry: typed or spoken, matched on the phone -----
+const WORDNUM={half:.5,aadha:.5,aadhi:.5,'আধা':.5,'আধ':.5,quarter:.25,one:1,ek:1,'এক':1,two:2,do:2,'দুই':2,three:3,teen:3,'তিন':3,four:4,char:4,'চার':4,five:5,paanch:5,'পাঁচ':5,dedh:1.5,'দেড়':1.5,dhai:2.5,'আড়াই':2.5};
+const ZERO=/\b(no milk|no delivery|nahi|nahin|none|zero|skip|off|cancel|band)\b|না|বন্ধ|নেই/i;
+const norm=s=>String(s).toLowerCase().split(/[^\p{L}\p{M}\p{N}.]+/u).map(t=>t.replace(/^\.+|\.+$/g,'')).filter(Boolean);
+function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;
+  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
+const tokEq=(a,b)=>a===b||(a.length>=4&&b.length>=4&&lev(a,b)<=1)||(a.length>=3&&b.length>=3&&(a.startsWith(b)||b.startsWith(a)));
+function matchCust(toks){
+  let best=[],bs=0;
+  customers.filter(c=>c.active).forEach(c=>{
+    const nt=norm(c.name);if(!nt.length)return;const used=[];let sc=0,all=true;
+    nt.forEach(n=>{const i=toks.findIndex((t,j)=>!used.includes(j)&&tokEq(n,t));if(i>=0){used.push(i);sc+=n.length}else all=false});
+    if(!used.some(i=>/\p{L}/u.test(toks[i])))return;   // digits alone (like "5") never identify a customer
+    const s=sc+(all?100:0);
+    if(s>bs){bs=s;best=[{c,used}]}else if(s===bs)best.push({c,used})});
+  return best}
+function parseQty(rest){
+  const txt=rest.join(' ');
+  if(ZERO.test(txt))return 0;
+  let m=txt.match(/(\d+(?:\.\d+)?)\s*(ml|millilitres?|milliliters?)/);if(m)return Math.round(+m[1]);
+  m=txt.match(/(\d+(?:\.\d+)?)\s*(l|lt|ltr|ltrs|litres?|liters?|লিটার)/);if(m)return Math.round(+m[1]*1000);
+  let total=0,found=false,prev=null;
+  for(const t of rest){
+    if(/^\d+(\.\d+)?$/.test(t)){const n=+t,v=n<=10?n*1000:n;total+=v;prev=v;found=true;continue}
+    if(t==='plushalf'){total+=500;found=true;continue}
+    if(/^quarters?$/.test(t)){if(prev!=null)total=total-prev+prev*.25;else total+=250;found=true;continue}
+    if(Object.prototype.hasOwnProperty.call(WORDNUM,t)){total+=WORDNUM[t]*1000;prev=WORDNUM[t]*1000;found=true}}
+  return found?Math.round(total):null}
+function parseLine(raw){
+  const toks=norm(raw.toLowerCase().replace(/\band\s+(a\s+)?half\b/g,' plushalf ')),best=matchCust(toks),used=new Set();
+  best.forEach(b=>b.used.forEach(i=>used.add(i)));
+  let slot=null,type=null;
+  const rest=toks.filter((_,i)=>!used.has(i)).filter(t=>{
+    if(/^(morning|subah|সকাল|সকালে)$/.test(t)){slot='morning';return false}
+    if(/^(evening|night|shaam|sham|সন্ধ্যা|সন্ধ্যায়|রাত)$/.test(t)){slot='evening';return false}
+    if(/^(cow|gai|gay|গরু|গরুর)$/.test(t)){type='cow';return false}
+    if(/^(buffalo|bhains|মহিষ|মহিষের)$/.test(t)){type='buffalo';return false}return true});
+  const usual=rest.some(t=>/^(usual|same|normal)$/.test(t));
+  return{raw,cands:best.map(b=>b.c.id),cid:best.length===1?best[0].c.id:'',ml:usual?'usual':parseQty(rest),slot,type}}
+const QP={lines:[]};
+function qPreview(){
+  const txt=$('qt').value.trim();if(!txt)return toast('Type or say something first');
+  const prot=txt.replace(/\band\s+(a\s+)?half\b/gi,m=>m.replace(/\s+/g,'_'));
+  QP.lines=prot.split(/[,;\n]+|\s+and\s+|\s+aur\s+/i).map(s=>s.replace(/_/g,' ').trim()).filter(Boolean).map(parseLine);qpRender()}
+const qpPairs=(l,c)=>{const o=[];(l.slot?[l.slot]:slotsOf(c)).forEach(s=>(l.type?[l.type]:typesOf(c)).forEach(ty=>o.push([s,ty])));return o};
+function qpRender(){
+  const opts=customers.filter(c=>c.active);
+  $('qpv').innerHTML=QP.lines.map((l,i)=>{const c=custById(l.cid);
+    const note=c&&l.ml!==null?qpPairs(l,c).map(([s,ty])=>`<span>${SLN[s]}</span> <span>${TYN[ty]}</span> ${L(l.ml==='usual'?defFor(c,ty):l.ml)} L`).join(' · '):'';
+    return `<div class="pvl"><div class="dh"><div class="muted" style="flex:1">“${esc(l.raw)}”</div><button class="d sm" aria-label="Remove" onclick="qpX(${i})">${ic('x')}</button></div>
+    <select onchange="qpC(${i},this.value)"><option value="">${l.cid||!l.cands.length?'Select customer':'Not found'}</option>${opts.map(c=>`<option value="${c.id}"${c.id===l.cid?' selected':''}>${esc(c.name)}</option>`).join('')}</select>
+    <div class="row" style="margin-top:6px;flex-wrap:nowrap"><input type="number" step="0.25" min="0" inputmode="decimal" placeholder="Litres" value="${typeof l.ml==='number'?l.ml/1000:''}" onchange="qpL(${i},this.value)">${l.ml==='usual'?'<span class="muted">Usual amount</span>':''}</div>
+    <div class="muted">${note}</div></div>`}).join('')+(QP.lines.length?`<p><button class="p full" onclick="qpApply()">${ic('check')}Apply</button></p>`:'')}
+function qpC(i,v){QP.lines[i].cid=v;qpRender()}
+function qpL(i,v){QP.lines[i].ml=v===''?null:Math.round(+v*1000);qpRender()}
+function qpX(i){QP.lines.splice(i,1);qpRender()}
+function qpApply(){
+  let n=0,skip=0;
+  QP.lines.forEach(l=>{const c=custById(l.cid);if(!c||l.ml===null){skip++;return}
+    qpPairs(l,c).forEach(([s,ty])=>{if(tdSet(c,s,ty,l.ml==='usual'?defFor(c,ty):l.ml))n++;else skip++})});
+  todayRender();QP.lines=[];$('qpv').innerHTML='';$('qt').value='';toast(skip?`${n} entries set, ${skip} skipped`:`${n} entries set`)}
+let REC=null;
+function micGo(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return toast('Voice typing is not available here. Use the microphone on your keyboard.');
+  if(REC){REC.stop();return}
+  REC=new SR();REC.lang=LANG==='bn'?'bn-IN':'en-IN';REC.interimResults=false;REC.maxAlternatives=1;$('micb').classList.add('rec');
+  REC.onresult=ev=>{const t=ev.results[0][0].transcript;$('qt').value=($('qt').value?$('qt').value+', ':'')+t;qPreview()};
+  REC.onerror=()=>{};REC.onend=()=>{REC=null;$('micb').classList.remove('rec')};REC.start()}
+
+// ----- month-end bill run -----
+const BR={rows:[],mo:'',open:false};
+function mSub(s){document.querySelectorAll('#mseg button').forEach(b=>b.classList.toggle('on',b.dataset.m===s));
+  $('m-pay').classList.toggle('hide',s!=='pay');$('m-bill').classList.toggle('hide',s!=='bill');if(s==='bill')brOpen();else loadPay()}
+function brOpen(){if(!BR.open){BR.open=true;const t=new Date(),d=t.getDate()<=10?new Date(t.getFullYear(),t.getMonth()-1,1):t;$('brm').value=ymd(d).slice(0,7)}brLoad()}
+const sentGet=()=>{try{return JSON.parse(localStorage.getItem('dd_sent')||'{}')}catch(e){return{}}};
+const sentSet=(id,v)=>{const s=sentGet();s[id]=v;try{localStorage.setItem('dd_sent',JSON.stringify(s))}catch(e){}};
+function mkBill(r,mo){
+  const lines=r.es.map(e=>({d:e.entry_date,s:e.slot,ty:e.milk_type,ml:e.ml,rate:+e.rate,p:paise(e.ml,+e.rate)}))
+    .sort((x,y)=>x.d<y.d?-1:x.d>y.d?1:(SL.indexOf(x.s)-SL.indexOf(y.s))||(TYS.indexOf(x.ty)-TYS.indexOf(y.ty)));
+  return{v:1,month:mo,customer:{name:r.c.name,phone:r.c.phone,address:r.c.address||''},
+    business:{name:S.business_name,phone:S.phone,address:S.address,upi:S.upi_id,footer:S.footer},
+    lines,adjs:r.adjs.map(a=>({kind:a.kind,p:Math.round(a.amount*100),note:a.note||''})),totals:r.t}}
+async function brLoad(){
+  const mo=$('brm').value;if(!mo)return;BR.mo=mo;
+  if(Q.m.size){$('brOut').innerHTML='<div class="card"><p>Unsaved entries are not in the database yet. Save them or discard them before running bills.</p><div class="row"><button class="p" onclick="saveAll().then(ok=>ok&&brLoad())">Save all</button><button onclick="discardAll()">Discard</button></div></div>';return}
+  
+  const [y,m]=mo.split('-').map(Number),a=mo+'-01',n=new Date(y,m,0).getDate(),b=ymd(new Date(y,m,0));
+  $('brOut').innerHTML='<p class="muted">Loading...</p>';
+  const [ents,cm,ad,iv]=await Promise.all([fetchAll('milk_entries',q=>q.gte('entry_date',a).lte('entry_date',b)),
+    db.rpc('an_cust_month',{from_m:a,to_m:a}),db.from('adjustments').select('*').eq('adj_month',a),db.from('invoices').select('*').eq('bill_month',a).eq('status','locked')]);
+  const cmd=chk(cm),by=(arr,k)=>{const o={};arr.forEach(r=>(o[r[k]]=o[r[k]]||[]).push(r));return o};
+  const eBy=by(ents,'customer_id'),aBy=by(chk(ad),'customer_id'),paidBy={},ivBy={},today=ymd(new Date());
+  cmd.rows.forEach(r=>paidBy[r.cid]=r.paid);chk(iv).forEach(r=>ivBy[r.customer_id]=r);
+  BR.rows=customers.filter(c=>c.active||eBy[c.id]).map(c=>{
+    const es=eBy[c.id]||[],have=new Set(es.map(r=>r.entry_date+'|'+r.slot+'|'+r.milk_type)),missing=[];
+    for(let d=1;d<=n;d++){const ds=`${mo}-${pad2(d)}`;if(ds>today)break;
+      SL.forEach(s=>TYS.forEach(ty=>{if(slotsOf(c).includes(s)&&typesOf(c).includes(ty)&&!have.has(ds+'|'+s+'|'+ty))missing.push([ds,s,ty])}))}
+    const adjs_=aBy[c.id]||[],ml=es.reduce((s,e)=>s+e.ml,0),ch=es.reduce((s,e)=>s+paise(e.ml,+e.rate),0);
+    let ex=0,dc=0;adjs_.forEach(x=>{const p=Math.round(x.amount*100);if(x.kind==='extra')ex+=p;else dc+=p});
+    const prev=Number(cmd.opening[c.id]||0),paid=paidBy[c.id]||0;
+    return{c,es,missing,adjs:adjs_,iv:ivBy[c.id]||null,t:{ml,ch,ex,dc,prev,paid,bal:prev+ch+ex-dc-paid}}}).sort((x,y)=>x.c.name.localeCompare(y.c.name));
+  brRender()}
+const brState=r=>r.iv?'locked':r.missing.length?'missing':(r.t.ch||r.t.ex||r.t.dc)?'ready':'nomilk';
+function brRender(){
+  const R=BR.rows,cnt=k=>R.filter(r=>brState(r)===k).length,ready=cnt('ready'),sent=sentGet(),locked=R.filter(r=>r.iv);
+  const nx=locked.find(r=>!sent[r.iv.id]),done=locked.filter(r=>sent[r.iv.id]).length;
+  let h=`<div class="card">${tiles([['Ready',ready],['Missing',cnt('missing')],['Locked',cnt('locked')],['Billed',inr(R.filter(r=>brState(r)==='ready').reduce((s,r)=>s+r.t.ch+r.t.ex-r.t.dc,0))]])}
+   <p><button class="p full"${ready?'':' disabled'} onclick="brLockAll()">${ic('lock')}Lock all ready bills (${ready})</button></p></div>`;
+  if(locked.length)h+=`<div class="card"><h3>${ic('send')}Send bills</h3><p class="muted">Sent ${done} of ${locked.length}</p>`+
+    (nx?`<button class="p full" onclick="brSend('${nx.iv.id}')">${ic('send')}Send next: ${esc(nx.c.name)}</button><p class="muted">Pick WhatsApp in the share sheet, then the customer's chat.</p><div class="row"><button class="sm" onclick="sentSet('${nx.iv.id}',2);brRender()">Skip</button><button class="sm" onclick="localStorage.removeItem('dd_sent');brRender()">Start over</button></div>`
+      :`<p class="ok">All bills sent.</p><button class="sm" onclick="localStorage.removeItem('dd_sent');brRender()">Start over</button>`)+'</div>';
+  h+='<div class="card">'+R.map(r=>{const st=brState(r),id=r.c.id;let d='',b='';
+    if(st==='locked'){d=`<span class="ok">${ic('lock')}${esc(r.iv.invoice_no)}</span> · ${inr(r.iv.snapshot.totals.bal)}${sent[r.iv.id]===1?` · <span class="ok">Sent</span>`:''}`;b=`<button class="sm" onclick="brSend('${r.iv.id}')">${ic('send')}Send</button>`}
+    else if(st==='missing'){d=`<span class="un">${ic('alert')}${r.missing.length} entries missing</span>`;b=`<button class="sm" onclick="brFill('${id}')">Fill usual</button><button class="sm" onclick="brOpenReg('${id}')">Open</button>`}
+    else if(st==='ready')d=`<span class="ok">${ic('check')}Ready</span> · ${inr(r.t.bal)}`;
+    else d='<span class="ne">No milk this month</span>';
+    return `<div class="cus"><div><b>${esc(r.c.name)}</b><br><span class="muted">${d}</span></div>${b}</div>`}).join('')+'</div>';
+  $('brOut').innerHTML=h}
+async function brFill(cid){const r=BR.rows.find(x=>x.c.id===cid);
+  if(!ask(`Fill ${r.missing.length} missing entries for ${r.c.name} with the usual amount?`))return;
+  r.missing.forEach(([d,s,ty])=>qSave({customer_id:cid,entry_date:d,slot:s,milk_type:ty,ml:defFor(r.c,ty),rate:priceFor(r.c,ty)}));
+  toast('Filled. Tap Save all to store them');brLoad()}
+function brOpenReg(cid){cur=custById(cid);$('rs').value='';fillSel();$('rc').value=cid;$('mo').value=BR.mo;document.querySelector('[data-t="reg"]').click();loadReg()}
+async function lastNo(yr){const l=chk(await db.from('invoices').select('invoice_no').like('invoice_no',`INV-${yr}-%`).order('invoice_no',{ascending:false}).limit(1))[0];return l?parseInt(l.invoice_no.split('-')[2]):0}
+async function brLockAll(){
+  const ready=BR.rows.filter(r=>brState(r)==='ready');if(!ready.length)return toast('Nothing to lock.');
+  if(!ask(`Lock ${ready.length} bills? Quantities and adjustments for these customers cannot be changed after locking.`))return;
+  const yr=new Date().getFullYear(),a=BR.mo+'-01';let n=await lastNo(yr),done=0;
+  for(const r of ready){
+    for(let t=0;t<4;t++){
+      const no=`INV-${yr}-${String(n+1).padStart(3,'0')}`,bill=mkBill(r,BR.mo);
+      const x=await db.from('invoices').insert({invoice_no:no,customer_id:r.c.id,bill_month:a,balance_paise:bill.totals.bal,snapshot:bill});
+      if(!x.error){n++;done++;break}
+      if(/invoice_no/.test(x.error.message)){n=await lastNo(yr);continue}
+      toast('Error: '+x.error.message);break}}
+  toast(`${done} bills locked`);brLoad()}
+async function sendInvoice(iv){
+  const bill=iv.snapshot,doc=makePDF(bill,iv),name=fname(bill),file=new File([doc.output('blob')],name,{type:'application/pdf'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:name,text:waMsg(bill,iv)});return true}catch(e){if(e.name==='AbortError')return false}}
+  doc.save(name);const u=waURL(bill,iv);if(u){toast('PDF downloaded. Attach it in WhatsApp manually.');setTimeout(()=>window.open(u,'_blank'),1200)}return true}
+async function brSend(id){const r=BR.rows.find(x=>x.iv&&x.iv.id===id);if(!r)return;if(await sendInvoice(r.iv))sentSet(id,1);brRender()}
+
+
+init();
+</script></body></html>
